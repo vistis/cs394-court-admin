@@ -84,6 +84,6 @@ jobs:
             
             This is an automated snapshot built from the latest main branch.
           prerelease: true
-          replacesArtifact: false
+          replacesArtifacts: false
           allowUpdate: false
           tag: snapshot
