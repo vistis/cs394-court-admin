@@ -24,6 +24,7 @@ The admin panel for the Court Management System. Used for user account managemen
 - Lombok
 - Spring Boot DevTools
 - Spring Session for Spring Data Redis
+- Sping dotenv (by `me.paulschwarz`, version `5.1.0`)
 
 > And additionally inherited dependencies from `court-shared`.
 
