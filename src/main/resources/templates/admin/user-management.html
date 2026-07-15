@@ -1,0 +1,417 @@
+<!doctype html>
+<html
+  lang="en"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layouts/dashboard}"
+>
+  <head>
+    <title>User Management</title>
+  </head>
+  <body>
+    <div layout:fragment="content">
+      <h1 class="text-2xl font-bold text-[#0a1e3f] mb-6">System Overview</h1>
+
+      <div class="grid grid-cols-3 gap-6 mb-8">
+        <div
+          class="bg-white rounded-lg border border-slate-200 p-6 flex items-center justify-between"
+        >
+          <div>
+            <p class="text-xs font-semibold text-slate-500 tracking-wide">
+              TOTAL USERS
+            </p>
+            <p
+              class="text-3xl font-bold text-[#0a1e3f] mt-1"
+              th:text="${totalUsers}"
+            >
+              0
+            </p>
+          </div>
+          <div
+            class="h-10 w-10 rounded-md bg-slate-100 flex items-center justify-center text-[#0a1e3f]"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-5 w-5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+              <circle cx="9" cy="7" r="4" />
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+              <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+            </svg>
+          </div>
+        </div>
+
+        <div
+          class="bg-white rounded-lg border border-slate-200 p-6 flex items-center justify-between"
+        >
+          <div>
+            <p class="text-xs font-semibold text-slate-500 tracking-wide">
+              ACTIVE USERS
+            </p>
+            <p
+              class="text-3xl font-bold text-blue-600 mt-1"
+              th:text="${activeUsers}"
+            >
+              0
+            </p>
+          </div>
+          <div
+            class="h-10 w-10 rounded-md bg-blue-50 flex items-center justify-center text-blue-600"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-5 w-5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+              <circle cx="8.5" cy="7" r="4" />
+              <polyline points="17 11 19 13 23 9" />
+            </svg>
+          </div>
+        </div>
+
+        <div
+          class="bg-white rounded-lg border border-slate-200 p-6 flex items-center justify-between"
+        >
+          <div>
+            <p class="text-xs font-semibold text-slate-500 tracking-wide">
+              INACTIVE USERS
+            </p>
+            <p
+              class="text-3xl font-bold text-red-600 mt-1"
+              th:text="${inactiveUsers}"
+            >
+              0
+            </p>
+          </div>
+          <div
+            class="h-10 w-10 rounded-md bg-red-50 flex items-center justify-center text-red-500"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-5 w-5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+              <circle cx="9" cy="7" r="4" />
+              <line x1="17" y1="8" x2="22" y2="13" />
+              <line x1="22" y1="8" x2="17" y2="13" />
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg border border-slate-200">
+        <div
+          class="flex items-center justify-between px-6 py-5 border-b border-slate-200"
+        >
+          <h2 class="text-xl font-bold text-[#0a1e3f]">User Management</h2>
+          <a
+            th:href="@{/admin/users/create}"
+            class="flex items-center gap-2 rounded-md bg-[#1e3a5f] px-4 py-2 text-sm font-semibold text-white hover:bg-[#254a75] transition-colors"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-4 w-4"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            Create User
+          </a>
+        </div>
+
+        <!-- Search: fires on typing (debounced 400ms), no page reload, no Search button.
+             hx-include="this" scopes the request to just this input's value. -->
+        <div class="px-6 py-4 bg-slate-50 border-b border-slate-200">
+          <div class="relative max-w-md">
+            <span
+              class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-5 w-5"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+            </span>
+            <input
+              type="text"
+              name="q"
+              th:value="${query}"
+              placeholder="Search users..."
+              hx-get="/admin/users/table"
+              hx-trigger="keyup changed delay:400ms, search"
+              hx-target="#user-table-container"
+              hx-swap="outerHTML"
+              hx-include="this"
+              th:attr="hx-push-url=@{/admin/users(q=${query})}"
+              class="w-full rounded-md border border-slate-300 bg-white pl-10 pr-3 py-2 text-sm shadow-sm focus:border-[#0a1e3f] focus:outline-none focus:ring-1 focus:ring-[#0a1e3f]"
+            />
+          </div>
+        </div>
+
+        <!-- Everything below this point is the HTMX-swappable fragment.
+             Full-page loads (GET /admin/users) render it inline like normal.
+             Search/pagination re-fetch GET /admin/users/table and swap
+             just this div, leaving the stat cards above untouched. -->
+        <div id="user-table-container" th:fragment="userTable">
+          <table class="w-full text-sm">
+            <thead class="bg-slate-50 border-b border-slate-200">
+              <tr class="text-left text-slate-600">
+                <th class="px-6 py-3 font-semibold">Full Name</th>
+                <th class="px-6 py-3 font-semibold">username</th>
+                <th class="px-6 py-3 font-semibold">Email</th>
+                <th class="px-6 py-3 font-semibold">Role</th>
+                <th class="px-6 py-3 font-semibold">Status</th>
+                <th class="px-6 py-3 font-semibold text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                th:each="user : ${users}"
+                class="border-b border-slate-100 last:border-0"
+              >
+                <td class="px-6 py-4">
+                  <div class="flex items-center gap-3">
+                    <img
+                      th:if="${user.profilePicturePath != null}"
+                      th:src="${user.profilePicturePath}"
+                      class="h-9 w-9 rounded-full object-cover"
+                      alt="Profile"
+                    />
+
+                    <div
+                      th:unless="${user.profilePicturePath != null}"
+                      class="h-9 w-9 rounded-full bg-[#1e3a5f] text-white flex items-center justify-center text-xs font-semibold"
+                      th:text="${user.initials}"
+                    >
+                      JD
+                    </div>
+                    <span
+                      class="font-semibold text-[#0a1e3f]"
+                      th:text="${user.fullName}"
+                      >Name</span
+                    >
+                  </div>
+                </td>
+
+                <td
+                  class="px-6 py-4 text-slate-600"
+                  th:text="${user.username != null && !#strings.isEmpty(user.username)} ? ${user.username}: 'N/A'"
+                >
+                  Greffier
+                </td>
+
+                <td class="px-6 py-4 text-slate-600" th:text="${user.email}">
+                  email@court.gov
+                </td>
+                <td class="px-6 py-4">
+                  <span
+                    th:each="role : ${user.roles}"
+                    th:text="${role}"
+                    class="inline-block bg-slate-100 text-slate-700 text-xs font-mono px-2 py-1 rounded mr-1 mb-1"
+                    >Role</span
+                  >
+                </td>
+                <td class="px-6 py-4">
+                  <span
+                    th:if="${user.active}"
+                    class="inline-flex items-center gap-1.5 text-blue-600 font-semibold"
+                  >
+                    <span class="h-1.5 w-1.5 rounded-full bg-blue-600"></span>
+                    Active
+                  </span>
+                  <span
+                    th:unless="${user.active}"
+                    class="inline-flex items-center gap-1.5 text-red-600 font-semibold"
+                  >
+                    <span class="h-1.5 w-1.5 rounded-full bg-red-600"></span>
+                    Inactive
+                  </span>
+                </td>
+                <td class="px-6 py-4">
+                  <div class="flex justify-end gap-2">
+                    <a
+                      th:href="@{/admin/users/update/{userId}(userId=${user.userId})}"
+                      class="rounded-md bg-[#1e3a5f] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#254a75]"
+                      >Edit</a
+                    >
+                    <button
+                      type="button"
+                      th:data-user-id="${user.userId}"
+                      th:data-user-name="${user.fullName}"
+                      onclick="openDeleteModal(this)"
+                      class="rounded-md bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-700 hover:bg-red-100"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr th:if="${#lists.isEmpty(users)}">
+                <td colspan="5" class="px-6 py-10 text-center text-slate-400">
+                  No users found.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div
+            class="flex items-center justify-end gap-3 px-6 py-4 border-t border-slate-200"
+          >
+            <a
+              th:href="@{/admin/users(q=${query}, page=${prevPage})}"
+              hx-get="/admin/users/table"
+              hx-target="#user-table-container"
+              hx-swap="outerHTML"
+              th:attr="hx-vals='{&quot;q&quot;: &quot;' + ${query} + '&quot;, &quot;page&quot;: ' + ${prevPage} + '}', hx-push-url=@{/admin/users(q=${query}, page=${prevPage})}"
+              th:classappend="${!hasPrevious} ? 'pointer-events-none opacity-40' : ''"
+              class="rounded-md border border-slate-300 px-3 py-1.5 text-sm text-slate-600 hover:bg-slate-50"
+              >Previous</a
+            >
+            <span
+              class="rounded-md border border-slate-300 px-3 py-1.5 text-sm text-slate-600"
+              th:text="${currentPage} + ' / ' + ${totalPages}"
+              >1 / 10</span
+            >
+            <a
+              th:href="@{/admin/users(q=${query}, page=${nextPage})}"
+              hx-get="/admin/users/table"
+              hx-target="#user-table-container"
+              hx-swap="outerHTML"
+              th:attr="hx-vals='{&quot;q&quot;: &quot;' + ${query} + '&quot;, &quot;page&quot;: ' + ${nextPage} + '}', hx-push-url=@{/admin/users(q=${query}, page=${nextPage})}"
+              th:classappend="${!hasNext} ? 'pointer-events-none opacity-40' : ''"
+              class="rounded-md bg-[#1e3a5f] px-3 py-1.5 text-sm text-white hover:bg-[#254a75]"
+              >Next</a
+            >
+          </div>
+        </div>
+      </div>
+
+      <!-- Delete confirmation modal — hidden by default, shown via JS -->
+      <div
+        id="deleteModal"
+        class="fixed inset-0 z-50 y-10 hidden items-center justify-center bg-black/40"
+      >
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4">
+          <div
+            class="flex items-center gap-3 px-6 py-5 border-b border-slate-200"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-6 w-6 text-red-600"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"
+              />
+              <line x1="12" y1="9" x2="12" y2="13" />
+              <line x1="12" y1="17" x2="12.01" y2="17" />
+            </svg>
+            <h2 class="text-lg font-bold text-[#0a1e3f]">Delete User</h2>
+          </div>
+
+          <div class="px-6 py-5">
+            <p class="text-sm text-slate-600">
+              Are you sure you want to delete
+              <span
+                id="deleteUserName"
+                class="font-semibold text-slate-900"
+              ></span
+              >? This action cannot be undone.
+            </p>
+          </div>
+
+          <div
+            class="flex items-center justify-end gap-3 px-6 py-4 border-t border-slate-200"
+          >
+            <button
+              type="button"
+              onclick="closeDeleteModal()"
+              class="rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+            >
+              Cancel
+            </button>
+            <form id="deleteUserForm" method="post">
+              <input
+                type="hidden"
+                th:if="${_csrf != null}"
+                th:name="${_csrf.parameterName}"
+                th:value="${_csrf.token}"
+              />
+              <button
+                type="submit"
+                class="rounded-md bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700"
+              >
+                Delete
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <script>
+        function openDeleteModal(button) {
+          const userId = button.dataset.userId;
+          const userName = button.dataset.userName;
+
+          document.getElementById("deleteUserName").textContent = userName;
+          document.getElementById("deleteUserForm").action =
+            "/admin/users" + "/delete/" + userId;
+
+          const modal = document.getElementById("deleteModal");
+          modal.classList.remove("hidden");
+          modal.classList.add("flex");
+        }
+
+        function closeDeleteModal() {
+          const modal = document.getElementById("deleteModal");
+          modal.classList.add("hidden");
+          modal.classList.remove("flex");
+        }
+
+        document
+          .getElementById("deleteModal")
+          .addEventListener("click", function (e) {
+            if (e.target === this) closeDeleteModal();
+          });
+      </script>
+    </div>
+  </body>
+</html>

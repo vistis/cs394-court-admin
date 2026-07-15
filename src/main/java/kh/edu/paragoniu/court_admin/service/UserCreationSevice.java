@@ -1,0 +1,77 @@
+package kh.edu.paragoniu.court_admin.service;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import kh.edu.paragoniu.court_shared.entity.SystemRole;
+import kh.edu.paragoniu.court_shared.entity.User;
+import kh.edu.paragoniu.court_shared.entity.UserRole;
+import kh.edu.paragoniu.court_shared.entity.UserRoleId;
+import kh.edu.paragoniu.court_shared.repository.SystemRoleRepository;
+import kh.edu.paragoniu.court_shared.repository.UserRepository;
+import kh.edu.paragoniu.court_shared.repository.UserRoleRepository;
+
+@Service
+public class UserCreationSevice {
+    
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private UserRoleRepository userRoleRepository;
+
+    @Autowired
+    private SystemRoleRepository systemRoleRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private StorageService storageService;
+
+    @Transactional
+    public void createUser(
+        String username,
+        String email,
+        String firstName,
+        String lastName,
+        String rawPassword,
+        boolean active,
+        String roleName,
+        MultipartFile profileImage
+    ) {
+        SystemRole role = systemRoleRepository.findByNameIgnoreCase(roleName)
+            .orElseThrow( () -> new IllegalArgumentException("Unknow role: " + roleName));
+
+        String profilePicturePath = (profileImage != null && !profileImage.isEmpty())
+            ? storageService.uploadFile(profileImage, "profiles/users")
+            : "N/A";
+
+        User user = new User();
+        user.setUsername(username);
+        user.setEmail(email);
+        user.setFirstName(firstName);
+        user.setLastName(lastName);
+        user.setPassword(passwordEncoder.encode(rawPassword));
+        user.setActive(active);
+        user.setProfilePicturePath(profilePicturePath);
+
+        user = userRepository.save(user);
+
+        
+        UserRole userRole = new UserRole();
+        userRole.setUser(user);
+        userRole.setSystemRole(role);
+
+        UserRoleId id = new UserRoleId();
+        id.setUserId(user.getUserId());
+        id.setSystemRoleId(role.getSystemRoleId());
+        userRole.setId(id);
+        // userRole.setSystemRole(role);
+
+        userRoleRepository.save(userRole);
+    }
+}

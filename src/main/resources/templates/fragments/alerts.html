@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <body>
+    <div th:fragment="success(message)">
+      <div class="rounded-md bg-green-50 p-4 mb-4">
+        <p class="text-sm text-green-800" th:text="${message}"></p>
+      </div>
+    </div>
+
+    <div th:fragment="error(message)">
+      <div class="rounded-md bg-red-50 p-4 mb-4">
+        <p class="text-sm text-red-800" th:text="${message}"></p>
+      </div>
+    </div>
+
+    <div th:fragment="warning(message)">
+      <div class="rounded-md bg-yellow-50 p-4 mb-4">
+        <p class="text-sm text-yellow-800" th:text="${message}"></p>
+      </div>
+    </div>
+  </body>
+</html>
