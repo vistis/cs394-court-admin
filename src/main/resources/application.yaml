@@ -1,9 +1,23 @@
 server:
   port: ${SERVER_PORT:8080}
+  servlet:
+    session:
+      cookie:
+        name: COURT_ADMIN_SESSION
 
 spring:
   application:
     name: court-admin
+
+  session:
+    redis:
+      namespace: court:admin:session
+
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 5MB
+      max-request-size: 5MB
 
   datasource:
     url: ${SQL_URL:jdbc:postgresql://localhost:5432/court}
@@ -22,6 +36,7 @@ spring:
     mongodb:
       uri: ${MONGODB_URI:mongodb://localhost:27017/}
       database: ${MONGODB_DATABASE:court}
+      auto-index-creation: true
 
     redis:
       host: ${REDIS_HOST:localhost}
@@ -34,11 +49,11 @@ spring:
     s3:
       access-key: ${S3_ACCESS_KEY:}
       secret-key: ${S3_SECRET_KEY:}
-      endpoint: ${S3_ENDPOINT:}
+      endpoint: ${S3_ENDPOINT:auto}
       region: ${S3_REGION:us-east-1}
       bucket-name: ${S3_BUCKET_NAME:}
       public-url: ${S3_PUBLIC_URL:}
 
-spring.servlet.multipart.enabled: true
-spring.servlet.multipart.max-file-size: 5MB
-spring.servlet.multipart.max-request-size: 5MB
+  cache:
+    redis:
+      time-to-live: 300000

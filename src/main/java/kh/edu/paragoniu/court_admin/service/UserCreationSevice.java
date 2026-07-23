@@ -1,11 +1,5 @@
 package kh.edu.paragoniu.court_admin.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
-
 import kh.edu.paragoniu.court_shared.entity.SystemRole;
 import kh.edu.paragoniu.court_shared.entity.User;
 import kh.edu.paragoniu.court_shared.entity.UserRole;
@@ -13,10 +7,15 @@ import kh.edu.paragoniu.court_shared.entity.UserRoleId;
 import kh.edu.paragoniu.court_shared.repository.SystemRoleRepository;
 import kh.edu.paragoniu.court_shared.repository.UserRepository;
 import kh.edu.paragoniu.court_shared.repository.UserRoleRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class UserCreationSevice {
-    
+
     @Autowired
     private UserRepository userRepository;
 
@@ -43,12 +42,16 @@ public class UserCreationSevice {
         String roleName,
         MultipartFile profileImage
     ) {
-        SystemRole role = systemRoleRepository.findByNameIgnoreCase(roleName)
-            .orElseThrow( () -> new IllegalArgumentException("Unknow role: " + roleName));
+        SystemRole role = systemRoleRepository
+            .findByNameIgnoreCase(roleName)
+            .orElseThrow(() ->
+                new IllegalArgumentException("Unknow role: " + roleName)
+            );
 
-        String profilePicturePath = (profileImage != null && !profileImage.isEmpty())
-            ? storageService.uploadFile(profileImage, "profiles/users")
-            : "N/A";
+        String profilePicturePath =
+            profileImage != null && !profileImage.isEmpty()
+                ? storageService.uploadFile(profileImage, "users")
+                : "N/A";
 
         User user = new User();
         user.setUsername(username);
@@ -61,7 +64,6 @@ public class UserCreationSevice {
 
         user = userRepository.save(user);
 
-        
         UserRole userRole = new UserRole();
         userRole.setUser(user);
         userRole.setSystemRole(role);

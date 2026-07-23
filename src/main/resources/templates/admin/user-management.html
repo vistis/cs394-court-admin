@@ -386,32 +386,7 @@
         </div>
       </div>
 
-      <script>
-        function openDeleteModal(button) {
-          const userId = button.dataset.userId;
-          const userName = button.dataset.userName;
-
-          document.getElementById("deleteUserName").textContent = userName;
-          document.getElementById("deleteUserForm").action =
-            "/admin/users" + "/delete/" + userId;
-
-          const modal = document.getElementById("deleteModal");
-          modal.classList.remove("hidden");
-          modal.classList.add("flex");
-        }
-
-        function closeDeleteModal() {
-          const modal = document.getElementById("deleteModal");
-          modal.classList.add("hidden");
-          modal.classList.remove("flex");
-        }
-
-        document
-          .getElementById("deleteModal")
-          .addEventListener("click", function (e) {
-            if (e.target === this) closeDeleteModal();
-          });
-      </script>
+      <script src="/js/script.js"></script>
     </div>
   </body>
 </html>

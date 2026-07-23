@@ -156,33 +156,7 @@
           </div>
 
           <!-- JavaScript to intercept the chosen image file and inject it directly into the DOM -->
-          <script>
-            function previewProfilePicture(input) {
-              const textSpan = document.getElementById("file-name-text");
-              const container = document.getElementById("image-container");
-
-              // Make sure a file was actually picked
-              if (input.files && input.files[0]) {
-                const file = input.files[0];
-
-                // 1. Update the filename label display text below the button
-                textSpan.textContent = file.name;
-                textSpan.className =
-                  "text-xs text-emerald-600 font-medium block mt-1";
-
-                // 2. Read the local binary data from the computer memory
-                const reader = new FileReader();
-
-                reader.onload = function (e) {
-                  // Swap out the default SVG icon for an interactive dynamic image tag instantly
-                  container.innerHTML = `<img src="${e.target.result}" alt="Profile Preview" class="h-full w-full object-cover" />`;
-                };
-
-                // Read file and parse it into an inline temporary base64 DataURL structure
-                reader.readAsDataURL(file);
-              }
-            }
-          </script>
+          <script src="/js/script.js"></script>
 
           <hr class="border-slate-200" />
 

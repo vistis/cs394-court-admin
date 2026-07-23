@@ -62,7 +62,7 @@ public class UserManagementController {
         model.addAttribute("currentPage", pageResult.getCurrentPage());
         model.addAttribute("totalPages", pageResult.getTotalPages());
         model.addAttribute("prevPage", Math.max(pageResult.getCurrentPage() -1, 1));
-        model.addAttribute("nextPage", Math.max(pageResult.getCurrentPage() + 1, pageResult.getTotalPages()));
+        model.addAttribute("nextPage", Math.min(pageResult.getCurrentPage() + 1, pageResult.getTotalPages()));
         model.addAttribute("hasPrevious", pageResult.isHasPrevious());
         model.addAttribute("hasNext", pageResult.isHasNext());
 
