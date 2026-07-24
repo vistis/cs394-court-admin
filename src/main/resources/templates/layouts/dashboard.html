@@ -1,124 +1,162 @@
 <!doctype html>
 <html
-    lang="en"
-    xmlns:th="http://www.thymeleaf.org"
-    xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  lang="en"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 >
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="referrer" content="no-referrer" />
-        <title layout:title-pattern="$CONTENT_TITLE - LexGuard Admin">
-            Page
-        </title>
-        <link rel="stylesheet" th:href="@{/css/output.css}" />
-        <script th:src="@{/js/htmx.min.js}"></script>
-    </head>
-    <body class="bg-slate-50">
-        <div class="flex min-h-screen">
-            <!-- Sidebar -->
-            <aside class="w-64 bg-[#0a1e3f] flex flex-col justify-between">
-                <div>
-                    <div class="px-6 py-6 border-b border-white/10">
-                        <h1 class="text-white font-bold text-lg">
-                            LexGuard Admin
-                        </h1>
-                        <p class="text-slate-400 text-xs mt-0.5">
-                            Court Management
-                        </p>
-                    </div>
-                    <nav class="px-3 py-4 space-y-1">
-                        <a
-                            th:href="@{/admin/users}"
-                            th:classappend="${activeNav == 'users'} ? 'bg-white/10 text-white' : 'text-slate-300 hover:bg-white/5 hover:text-white'"
-                            class="flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-colors"
-                        >
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                class="h-5 w-5"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                stroke-width="2"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                            >
-                                <path
-                                    d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"
-                                />
-                                <circle cx="9" cy="7" r="4" />
-                                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-                                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                            </svg>
-                            User Management
-                        </a>
-                        <a
-                            th:href="@{/admin/roles}"
-                            th:classappend="${activeNav == 'roles'} ? 'bg-white/10 text-white' : 'text-slate-300 hover:bg-white/5 hover:text-white'"
-                            class="flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-colors"
-                        >
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                class="h-5 w-5"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                stroke-width="2"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                            >
-                                <path
-                                    d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"
-                                />
-                            </svg>
-                            Role Management
-                        </a>
-                    </nav>
-                </div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="referrer" content="no-referrer" />
+    <title layout:title-pattern="$CONTENT_TITLE - LexGuard Admin">Page</title>
+    <link rel="stylesheet" th:href="@{/css/output.css}" />
+    <script th:src="@{/js/htmx.min.js}"></script>
+  </head>
+  <body class="bg-slate-50">
+    <div class="flex min-h-screen">
+      <!-- Sidebar -->
+      <aside class="w-64 bg-[#0a1e3f] flex flex-col justify-between">
+        <div>
+          <div class="px-6 py-6 border-b border-white/10">
+            <h1 class="text-white font-bold text-lg">LexGuard Admin</h1>
+            <p class="text-slate-400 text-xs mt-0.5">Court Management</p>
+          </div>
+          <nav class="px-3 py-4 space-y-1">
+            <a
+              th:href="@{/admin/users}"
+              th:classappend="${activeNav == 'users'} ? 'bg-white/10 text-white' : 'text-slate-300 hover:bg-white/5 hover:text-white'"
+              class="flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-colors"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-5 w-5"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+              </svg>
+              User Management
+            </a>
+            <a
+              th:href="@{/admin/roles}"
+              th:classappend="${activeNav == 'roles'} ? 'bg-white/10 text-white' : 'text-slate-300 hover:bg-white/5 hover:text-white'"
+              class="flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-colors"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-5 w-5"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z" />
+              </svg>
+              Role Management
+            </a>
 
-                <div class="px-3 py-4 border-t border-white/10">
-                    <form th:action="@{/logout}" method="post">
-                        <button
-                            type="submit"
-                            class="w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium text-slate-300 hover:bg-white/5 hover:text-white transition-colors"
-                        >
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                class="h-5 w-5"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                stroke-width="2"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                            >
-                                <path
-                                    d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"
-                                />
-                                <polyline points="16 17 21 12 16 7" />
-                                <line x1="21" y1="12" x2="9" y2="12" />
-                            </svg>
-                            Logout
-                        </button>
-                    </form>
-                </div>
-            </aside>
+            <a
+              th:href="@{/admin/permissions}"
+              th:classappend="${activeNav == 'permissions'} ? 'bg-white/10 text-white' : 'text-slate-300 hover:bg-white/5 hover:text-white'"
+              class="flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-colors"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-5 w-5"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
+              Permissions
+            </a>
 
-            <!-- Main -->
-            <div class="flex-1 flex flex-col">
-                <header
-                    class="h-16 bg-white border-b border-slate-200 flex items-center justify-end px-8"
-                >
-                    <div
-                        class="h-9 w-9 rounded-full bg-[#0a1e3f] text-white flex items-center justify-center text-sm font-semibold"
-                    >
-                        A
-                    </div>
-                </header>
-
-                <main class="flex-1 p-8" layout:fragment="content">
-                    <!-- page-specific content goes here -->
-                </main>
-            </div>
+            <a
+              th:href="@{/admin/storage}"
+              th:classappend="${activeNav == 'storage'} ? 'bg-white/10 text-white' : 'text-slate-300 hover:bg-white/5 hover:text-white'"
+              class="flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-colors"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-5 w-5"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+                <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+                <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+              </svg>
+              Storage
+            </a>
+          </nav>
         </div>
-    </body>
+
+        <div class="px-3 py-4 border-t border-white/10">
+          <form th:action="@{/logout}" method="post">
+            <button
+              type="submit"
+              class="w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium text-slate-300 hover:bg-white/5 hover:text-white transition-colors"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-5 w-5"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                <polyline points="16 17 21 12 16 7" />
+                <line x1="21" y1="12" x2="9" y2="12" />
+              </svg>
+              Logout
+            </button>
+          </form>
+        </div>
+      </aside>
+
+      <!-- Main -->
+      <div class="flex-1 flex flex-col">
+        <header
+          class="h-16 bg-white border-b border-slate-200 flex items-center justify-end px-8"
+        >
+          <a th:href="@{/admin/profile}" class="block">
+            <img
+              th:if="${currentAdmin != null and currentAdmin.profilePicturePath != null}"
+              th:src="${currentAdmin.profilePicturePath}"
+              class="h-9 w-9 rounded-full object-cover border border-slate-200"
+              alt="Profile picture"
+            />
+            <div
+              th:unless="${currentAdmin != null and currentAdmin.profilePicturePath != null}"
+              class="h-9 w-9 rounded-full bg-[#0a1e3f] text-white flex items-center justify-center text-sm font-semibold"
+              th:text="${currentAdmin != null ? currentAdmin.initials : '?'}"
+            ></div>
+          </a>
+        </header>
+        <main class="flex-1 p-8" layout:fragment="content">
+          <!-- page-specific content goes here -->
+        </main>
+      </div>
+    </div>
+  </body>
 </html>

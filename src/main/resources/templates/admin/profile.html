@@ -1,0 +1,255 @@
+<!doctype html>
+<html
+  lang="en"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layouts/dashboard}"
+>
+  <head>
+    <title>My Profile</title>
+  </head>
+  <body>
+    <div layout:fragment="content">
+      <h1 class="text-xl font-bold text-slate-900 mb-6">My Profile</h1>
+
+      <div
+        th:if="${success}"
+        class="mb-4 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm px-4 py-3"
+        th:text="${success}"
+      ></div>
+
+      <!-- <div class="grid grid-cols-1 lg:grid-cols-2 gap-6"> -->
+      <!-- Profile info form -->
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+        <h2 class="text-sm font-bold text-slate-900 mb-4">
+          Account Information
+        </h2>
+        <form
+          th:action="@{/admin/profile}"
+          th:object="${profileForm}"
+          method="post"
+          enctype="multipart/form-data"
+          class="space-y-4"
+        >
+          <div
+            class="bg-slate-50/50 rounded-xl border border-slate-200/60 p-5 flex items-center gap-5"
+          >
+            <!-- Left Square Wrapper -->
+            <div
+              class="relative h-24 w-24 bg-[#e8f0fe] rounded-lg border border-dashed border-slate-300 flex items-center justify-center text-slate-400 overflow-hidden"
+            >
+              <!-- This container will hold either the default icon or your live preview image -->
+              <div
+                id="image-container"
+                class="h-full w-full flex items-center justify-center"
+              >
+                <!-- Default SVG Icon shown initially -->
+                <img
+                  th:if="${profile.profilePicturePath != null}"
+                  th:src="${profile.profilePicturePath}"
+                  alt="profile Picture"
+                />
+                <svg
+                  th:unless="${profile.profilePicturePath != null}"
+                  id="default-avatar-icon"
+                  xmlns="http://w3.org"
+                  class="h-8 w-8 text-slate-500"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="8.5" cy="7" r="4"></circle>
+                  <line x1="20" y1="8" x2="20" y2="14"></line>
+                  <line x1="23" y1="11" x2="17" y2="11"></line>
+                </svg>
+              </div>
+
+              <!-- Small Edit Circular Badge -->
+              <button
+                type="button"
+                onclick="document.getElementById('profileImage').click()"
+                class="absolute -bottom-1 -right-1 h-6 w-6 bg-[#0a1e3f] text-white rounded-full flex items-center justify-center border border-white shadow-sm hover:bg-[#112d5a]"
+              >
+                <svg
+                  xmlns="http://w3.org"
+                  class="h-3.5 w-3.5"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path
+                    d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
+                  ></path>
+                  <path
+                    d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4Z"
+                  ></path>
+                </svg>
+              </button>
+            </div>
+
+            <!-- Right Side Form Controls -->
+            <div>
+              <h3 class="text-sm font-bold text-slate-900">Profile Picture</h3>
+              <p class="text-xs text-slate-500 mt-1 mb-3">
+                Recommended: Square JPEG or PNG, max 5MB
+              </p>
+
+              <!-- Hidden Native File Input (Triggers instant client-side rendering via onchange) -->
+              <input
+                type="file"
+                id="profileImage"
+                name="profileImage"
+                accept="image/jpeg, image/png"
+                class="hidden"
+                onchange="previewProfilePicture(this)"
+              />
+
+              <!-- Visual Button for users to click -->
+              <button
+                type="button"
+                onclick="document.getElementById('profileImage').click()"
+                class="rounded-lg border border-slate-300 bg-white px-4 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 shadow-sm"
+              >
+                Choose File
+              </button>
+              <span
+                id="file-name-text"
+                class="text-xs text-slate-400 ml-2 block mt-1 italic"
+                >No file chosen</span
+              >
+            </div>
+          </div>
+
+          <!-- JavaScript to intercept the chosen image file and inject it directly into the DOM -->
+          <script>
+            function previewProfilePicture(input) {
+              const textSpan = document.getElementById("file-name-text");
+              const container = document.getElementById("image-container");
+
+              // Make sure a file was actually picked
+              if (input.files && input.files[0]) {
+                const file = input.files[0];
+
+                // 1. Update the filename label display text below the button
+                textSpan.textContent = file.name;
+                textSpan.className =
+                  "text-xs text-emerald-600 font-medium block mt-1";
+
+                // 2. Read the local binary data from the computer memory
+                const reader = new FileReader();
+
+                reader.onload = function (e) {
+                  // Swap out the default SVG icon for an interactive dynamic image tag instantly
+                  container.innerHTML = `<img src="${e.target.result}" alt="Profile Preview" class="h-full w-full object-cover" />`;
+                };
+
+                // Read file and parse it into an inline temporary base64 DataURL structure
+                reader.readAsDataURL(file);
+              }
+            }
+          </script>
+
+          <div>
+            <label class="block text-sm font-bold text-slate-900 mb-5"
+              >Role</label
+            >
+            <input
+              type="text"
+              th:value="${profile.roles}"
+              disabled
+              class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-[#0a1e3f] focus:outline-none focus:ring-1 focus:ring-[#0a1e3f]"
+            />
+          </div>
+
+          <div>
+            <label class="block text-sm font-bold text-slate-900 mb-5"
+              >Username</label
+            >
+            <input
+              type="text"
+              name="username"
+              th:value="${profileForm?.username}"
+              required
+              class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-[#0a1e3f] focus:outline-none focus:ring-1 focus:ring-[#0a1e3f]"
+            />
+            <p
+              th:if="${#fields.hasErrors('username')}"
+              th:errors="*{username}"
+              class="text-red-600 text-xs mt-1"
+            ></p>
+          </div>
+
+          <div>
+            <label class="block text-sm font-bold text-slate-900 mb-5"
+              >Email</label
+            >
+            <input
+              type="email"
+              name="email"
+              th:value="${profileForm?.email}"
+              required
+              class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-[#0a1e3f] focus:outline-none focus:ring-1 focus:ring-[#0a1e3f]"
+            />
+            <p
+              th:if="${#fields.hasErrors('email')}"
+              th:errors="*{email}"
+              class="text-red-600 text-xs mt-1"
+            ></p>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4 mb-5">
+            <div>
+              <label class="block text-sm font-bold text-slate-900 mb-1"
+                >First Name</label
+              >
+              <input
+                type="text"
+                name="firstName"
+                th:value="${profileForm?.firstName}"
+                required
+                class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-[#0a1e3f] focus:outline-none focus:ring-1 focus:ring-[#0a1e3f]"
+              />
+              <p
+                th:if="${#fields.hasErrors('firstName')}"
+                th:errors="*{firstName}"
+                class="text-red-600 text-xs mt-1"
+              ></p>
+            </div>
+            <div>
+              <label class="block text-sm font-bold text-slate-900 mb-1"
+                >Last Name</label
+              >
+              <input
+                type="text"
+                name="lastName"
+                th:value="${profileForm?.lastName}"
+                required
+                class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-[#0a1e3f] focus:outline-none focus:ring-1 focus:ring-[#0a1e3f]"
+              />
+              <p
+                th:if="${#fields.hasErrors('lastName')}"
+                th:errors="*{lastName}"
+                class="text-red-600 text-xs mt-1"
+              ></p>
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            class="w-full rounded-lg bg-[#0a1e3f] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#112d5a]"
+          >
+            Save Changes
+          </button>
+        </form>
+      </div>
+      <!-- </div> -->
+    </div>
+  </body>
+</html>

@@ -178,10 +178,16 @@
                 <input
                   type="text"
                   name="username"
+                  th:value="${user?.username}"
                   required
                   placeholder="e.g. j.dupont"
                   class="w-full rounded-lg border border-slate-300 bg-white pl-10 pr-3 py-2.5 text-sm shadow-sm focus:border-[#0a1e3f] focus:outline-none focus:ring-1 focus:ring-[#0a1e3f]"
                 />
+                <p
+                  th:if="${#fields != null and #fields.hasErrors('user.username')}"
+                  th:errors="${user.username}"
+                  class="text-red-600 text-xs mt-1"
+                ></p>
               </div>
             </div>
 
@@ -210,10 +216,16 @@
                 <input
                   type="email"
                   name="email"
+                  th:value="${user?.email}"
                   required
                   placeholder="staff@lexguard.gov"
                   class="w-full rounded-lg border border-slate-300 bg-white pl-10 pr-3 py-2.5 text-sm shadow-sm focus:border-[#0a1e3f] focus:outline-none focus:ring-1 focus:ring-[#0a1e3f]"
                 />
+                <p
+                  th:if="${#fields != null and #fields.hasErrors('user.email')}"
+                  th:errors="${user.email}"
+                  class="text-red-600 text-xs mt-1"
+                ></p>
               </div>
             </div>
           </div>
@@ -226,9 +238,15 @@
               <input
                 type="text"
                 name="firstName"
+                th:value="${user?.firstName}"
                 required
                 class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm shadow-sm focus:border-[#0a1e3f] focus:outline-none focus:ring-1 focus:ring-[#0a1e3f]"
               />
+              <p
+                th:if="${#fields != null and #fields.hasErrors('user.firstName')}"
+                th:errors="${user.firstName}"
+                class="text-red-600 text-xs mt-1"
+              ></p>
             </div>
             <div>
               <label class="block text-sm font-bold text-slate-900 mb-2"
@@ -237,9 +255,15 @@
               <input
                 type="text"
                 name="lastName"
+                th:value="${user?.lastName}"
                 required
                 class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm shadow-sm focus:border-[#0a1e3f] focus:outline-none focus:ring-1 focus:ring-[#0a1e3f]"
               />
+              <p
+                th:if="${#fields != null and #fields.hasErrors('user.lastName')}"
+                th:errors="${user.lastName}"
+                class="text-red-600 text-xs mt-1"
+              ></p>
             </div>
           </div>
 
@@ -272,6 +296,11 @@
                   placeholder="e.g. 12333cchddkkdikk"
                   class="w-full rounded-lg border border-slate-300 bg-white pl-10 pr-3 py-2.5 text-sm shadow-sm focus:border-[#0a1e3f] focus:outline-none focus:ring-1 focus:ring-[#0a1e3f]"
                 />
+                <p
+                  th:if="${#fields != null and #fields.hasErrors('user.password')}"
+                  th:errors="${user.password}"
+                  class="text-red-600 text-xs mt-1"
+                ></p>
               </div>
             </div>
           </div>
@@ -280,9 +309,9 @@
             <label class="relative inline-flex items-center cursor-pointer">
               <input
                 type="checkbox"
-                name="active"
+                name="isActive"
                 value="true"
-                checked
+                th:checked="${user?.isActive}"
                 class="sr-only peer"
               />
               <div
@@ -315,6 +344,7 @@
               <select
                 name="roles"
                 required
+                th:if="${!#lists.isEmpty(availableRoles)}"
                 class="w-full rounded-lg border border-slate-300 bg-white pl-10 pr-10 py-2.5 text-sm shadow-sm appearance-none focus:border-[#0a1e3f] focus:outline-none focus:ring-1 focus:ring-[#0a1e3f]"
               >
                 <option value="" disabled selected>Select a role...</option>
@@ -322,19 +352,22 @@
                   th:each="availableRole : ${availableRoles}"
                   th:value="${availableRole.name}"
                   th:text="${availableRole.name}"
+                  th:selected="${user?.roles != null and (user.roles == availableRole.name or #lists.contains(user.roles, availableRole.name))}"
                 >
                   Role Option
                 </option>
-                <option
-                  value="Greffier"
-                  th:if="${#lists.isEmpty(availableRoles)}"
-                >
-                  Greffier
-                </option>
-                <option value="Admin" th:if="${#lists.isEmpty(availableRoles)}">
-                  Admin
-                </option>
               </select>
+              <p
+                th:if="${#lists.isEmpty(availableRoles)}"
+                class="text-red-600 text-sm"
+              >
+                No roles are configured. Please seed roles before creating
+                users.
+              </p>
+              <p
+                th:if="${#fields != null and #fields.hasErrors('user.roles')}"
+                th:errors="${user.roles}"
+              ></p>
               <span
                 class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-500"
               >

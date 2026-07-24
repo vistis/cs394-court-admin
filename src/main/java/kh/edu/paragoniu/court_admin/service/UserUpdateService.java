@@ -1,6 +1,8 @@
 package kh.edu.paragoniu.court_admin.service;
 
 import java.util.UUID;
+
+import kh.edu.paragoniu.court_shared.dto.user.UpdateUserRequestDTO;
 import kh.edu.paragoniu.court_shared.dto.user.UserDTO;
 import kh.edu.paragoniu.court_shared.entity.SystemRole;
 import kh.edu.paragoniu.court_shared.entity.User;
@@ -52,23 +54,14 @@ public class UserUpdateService {
             user.getLastName(),
             storageService.getFullUrl(user.getProfilePicturePath()),
             user.isActive(),
-            user
-                .getUserRoles()
-                .stream()
-                .map(ur -> ur.getSystemRole().getName())
-                .toList()
+            user.getUserRoles().stream().findFirst().map(ur -> ur.getSystemRole().getName()).orElse(null)
         );
     }
 
     @Transactional
     public void updateUser(
         UUID userId,
-        String email,
-        String firstName,
-        String lastName,
-        boolean active,
-        String roleName,
-        String newPassword,
+        UpdateUserRequestDTO request,
         MultipartFile newProfilePicture
     ) {
         User user = userRepository
@@ -77,20 +70,19 @@ public class UserUpdateService {
                 new IllegalArgumentException("User not found: " + userId)
             );
 
-        SystemRole role = systemRoleRepository
-            .findByNameIgnoreCase(roleName)
-            .orElseThrow(() ->
-                new IllegalArgumentException("Unknow role: " + roleName)
-            );
+        SystemRole role = systemRoleRepository.findByNameIgnoreCase(request.getRoles())
+            .orElseThrow( () -> new IllegalArgumentException("Unknow role: " + request.getRoles()));
 
-        user.setEmail(email);
-        user.setFirstName(firstName);
-        user.setLastName(lastName);
-        user.setActive(active);
+        user.setUsername(request.getUsername());
+        user.setEmail(request.getEmail());
+        user.setFirstName(request.getFirstName());
+        user.setLastName(request.getLastName());
+        user.setActive(Boolean.TRUE.equals(request.getIsActive()));
 
-        if (newPassword != null && !newPassword.isBlank()) {
-            user.setPassword(passwordEncoder.encode(newPassword));
-        }
+
+        // if (newPassword != null && !newPassword.isBlank()) {
+        //     user.setPassword(passwordEncoder.encode(newPassword));
+        // }
 
         if (newProfilePicture != null && !newProfilePicture.isEmpty()) {
             String oldPath = user.getProfilePicturePath();

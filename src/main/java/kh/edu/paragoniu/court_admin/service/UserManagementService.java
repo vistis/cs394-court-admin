@@ -2,6 +2,10 @@ package kh.edu.paragoniu.court_admin.service;
 
 
 import java.util.List;
+import java.util.UUID;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -26,33 +30,44 @@ public class UserManagementService {
     @Autowired
     private StorageService storageService;
 
-    public UserPageResultDTO search(String query, int page ) {
+    public UserPageResultDTO search(String query, Boolean statusFilter, int page ) {
         int safePage = Math.max(page, 1);
         Pageable pageable = PageRequest.of(safePage -1, PAGE_SIZE, Sort.by("lastName", "firstName"));
 
-        Page<User> result = userRepository.search(query, pageable);
+        Page<UUID> idPage = userRepository.searchUserIds(query, statusFilter, pageable);
+        List<UUID> orderedIds = idPage.getContent();
 
-        List<UserDTO> rows = result.getContent().stream()
-        .map(user -> new UserDTO(
-            user.getUserId(),
-            user.getUsername(),
-            user.getEmail(),
-            user.getFirstName(), 
-            user.getLastName(),
-            storageService.getFullUrl(user.getProfilePicturePath()),
-            user.isActive(),
-            user.getUserRoles().stream().map(ur -> ur.getSystemRole().getName()).toList()
-        ))
-        .toList();
+        List<User> hydrated = orderedIds.isEmpty()
+            ? List.of()
+            : userRepository.findByIdsWithRoles(orderedIds);
 
-        int totalPages = Math.max(result.getTotalPages(), 1);
+        
+        Map<UUID, User> byId = hydrated.stream()
+            .collect(Collectors.toMap(User::getUserId, Function.identity()));
+
+        List<UserDTO> rows = orderedIds.stream()
+            .map(byId::get)
+            .filter(java.util.Objects::nonNull) // defensive: skip if a user was deleted between queries
+            .map(user -> new UserDTO(
+                user.getUserId(),
+                user.getUsername(),
+                user.getEmail(),
+                user.getFirstName(),
+                user.getLastName(),
+                storageService.getFullUrl(user.getProfilePicturePath()),
+                user.isActive(),
+                user.getUserRoles().stream().findFirst().map(ur -> ur.getSystemRole().getName()).orElse(null)
+            ))
+            .toList();
+
+        int totalPages = Math.max(idPage.getTotalPages(), 1);
 
         return new UserPageResultDTO(
             rows,
             safePage,
             totalPages,
-            result.hasPrevious(),
-            result.hasNext()
+            idPage.hasPrevious(),
+            idPage.hasNext()
         );
     }
 
@@ -60,7 +75,6 @@ public class UserManagementService {
         long totalUser = userRepository.count();
         long activeUser = userRepository.countByIsActive(true);
         long inactiveUser = totalUser - activeUser;
-
         return new UserState(totalUser, activeUser, inactiveUser);
     }
 

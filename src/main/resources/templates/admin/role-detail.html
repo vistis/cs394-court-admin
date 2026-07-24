@@ -1,0 +1,85 @@
+<!doctype html>
+<html
+  lang="en"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layouts/dashboard}"
+>
+  <head>
+    <title>Role Detail</title>
+  </head>
+  <body>
+    <div layout:fragment="content">
+      <div class="flex items-center gap-4 mb-6">
+        <a
+          th:href="@{/admin/roles}"
+          class="h-10 w-10 border border-slate-200 bg-white rounded-lg flex items-center justify-center text-slate-600 hover:bg-slate-50 shadow-sm"
+          >&larr;</a
+        >
+        <h1
+          class="text-xl font-bold text-slate-900"
+          th:text="${role.name}"
+        ></h1>
+        <a
+          th:href="@{/admin/roles/{id}/edit(id=${role.roleId})}"
+          class="ml-auto rounded-lg bg-[#0a1e3f] px-5 py-2 text-sm font-semibold text-white hover:bg-[#112d5a] shadow-sm"
+          >Edit Role</a
+        >
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+          <h2
+            class="text-sm font-bold text-slate-900 mb-4"
+            th:text="'Users (' + ${#lists.size(role.users)} + ')'"
+          ></h2>
+          <ul class="divide-y divide-slate-100">
+            <li
+              th:each="u : ${role.users}"
+              class="py-3 flex items-center justify-between"
+            >
+              <div>
+                <p
+                  class="text-sm font-semibold text-slate-900"
+                  th:text="${u.fullName}"
+                ></p>
+                <p class="text-xs text-slate-500" th:text="${u.email}"></p>
+              </div>
+              <span
+                th:text="${u.active} ? 'Active' : 'Inactive'"
+                th:classappend="${u.active} ? 'text-emerald-600' : 'text-slate-400'"
+                class="text-xs font-semibold"
+              ></span>
+            </li>
+            <li
+              th:if="${#lists.isEmpty(role.users)}"
+              class="py-3 text-sm text-slate-400"
+            >
+              No users assigned to this role.
+            </li>
+          </ul>
+        </div>
+
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+          <h2
+            class="text-sm font-bold text-slate-900 mb-4"
+            th:text="'Permissions (' + ${#lists.size(role.permissions)} + ')'"
+          ></h2>
+          <ul class="grid grid-cols-1 gap-2">
+            <li
+              th:each="p : ${role.permissions}"
+              class="text-sm text-slate-700 px-3 py-2 bg-slate-50 rounded-lg"
+              th:text="${p.code}"
+            ></li>
+            <li
+              th:if="${#lists.isEmpty(role.permissions)}"
+              class="text-sm text-slate-400"
+            >
+              No permissions assigned.
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

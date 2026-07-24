@@ -1,0 +1,99 @@
+<!doctype html>
+<html
+  lang="en"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layouts/dashboard}"
+>
+  <head>
+    <title>Create Role</title>
+  </head>
+  <body>
+    <div layout:fragment="content">
+      <h1 class="text-xl font-bold text-slate-900 mb-6">Create New Role</h1>
+
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+        <form
+          th:action="@{/admin/roles/create}"
+          th:object="${role}"
+          method="post"
+          class="space-y-6"
+        >
+          <div>
+            <label class="block text-sm font-bold text-slate-900 mb-2"
+              >Role Name <span class="text-red-500">*</span></label
+            >
+            <input
+              type="text"
+              name="name"
+              th:value="${role?.name}"
+              required
+              class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm shadow-sm focus:border-[#0a1e3f] focus:outline-none focus:ring-1 focus:ring-[#0a1e3f]"
+            />
+            <p
+              th:if="${#fields.hasErrors('name')}"
+              th:errors="*{name}"
+              class="text-red-600 text-xs mt-1"
+            ></p>
+          </div>
+
+          <div>
+            <label class="block text-sm font-bold text-slate-900 mb-2"
+              >Permissions <span class="text-red-500">*</span></label
+            >
+            <div
+              class="border border-slate-200 rounded-lg overflow-hidden max-h-96 overflow-y-auto"
+            >
+              <div
+                th:each="group : ${groupedPermissions}"
+                class="border-b border-slate-100 last:border-b-0"
+              >
+                <div
+                  class="bg-[#0a1e3f] text-white text-xs font-bold px-4 py-2"
+                  th:text="${#strings.toUpperCase(group.moduleName)}"
+                ></div>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-3 p-4">
+                  <label
+                    th:each="p : ${group.permission}"
+                    class="flex items-center gap-2 text-sm text-slate-700"
+                  >
+                    <input
+                      type="checkbox"
+                      name="permissionIds"
+                      th:value="${p.permissionId}"
+                      th:checked="${p.assigned}"
+                    />
+                    <span
+                      th:text="${#strings.arrayJoin(
+              #strings.arraySplit(#strings.toLowerCase(#strings.replace(p.code, '_', ' ')), ' ')
+                  .![#strings.capitalize(#this)], ' ')}"
+                    ></span>
+                  </label>
+                </div>
+              </div>
+            </div>
+            <p
+              th:if="${#fields.hasErrors('permissionIds')}"
+              th:errors="*{permissionIds}"
+              class="text-red-600 text-xs mt-1"
+            ></p>
+          </div>
+
+          <div class="flex justify-end gap-3">
+            <a
+              th:href="@{/admin/roles}"
+              class="rounded-lg border border-slate-300 bg-white px-5 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 shadow-sm"
+              >Cancel</a
+            >
+            <button
+              type="submit"
+              class="rounded-lg bg-[#0a1e3f] px-5 py-2 text-sm font-semibold text-white hover:bg-[#112d5a] shadow-sm"
+            >
+              Save Role
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </body>
+</html>

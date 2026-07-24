@@ -54,7 +54,7 @@
       <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
         <form
           id="updateUserForm"
-          th:action="@{/admin/users/update/{userId}(userId=${user.userId})}"
+          th:action="@{/admin/users/update/{userId}(userId=${userId})}"
           method="post"
           enctype="multipart/form-data"
           class="space-y-6"
@@ -73,12 +73,12 @@
               >
                 <!-- Default SVG Icon shown initially -->
                 <img
-                  th:if="${user.profilePicturePath != null}"
-                  th:src="${user.profilePicturePath}"
+                  th:if="${profilePicturePath != null}"
+                  th:src="${profilePicturePath}"
                   alt="profile Picture"
                 />
                 <svg
-                  th:unless="${user.profilePicturePath != null}"
+                  th:unless="${profilePicturePath != null}"
                   id="default-avatar-icon"
                   xmlns="http://w3.org"
                   class="h-8 w-8 text-slate-500"
@@ -186,9 +186,14 @@
                   name="username"
                   required
                   placeholder="e.g. j.dupont"
-                  th:value="${user.username}"
+                  th:value="${user?.username}"
                   class="w-full rounded-lg border border-slate-300 bg-white pl-10 pr-3 py-2.5 text-sm shadow-sm focus:border-[#0a1e3f] focus:outline-none focus:ring-1 focus:ring-[#0a1e3f]"
                 />
+                <p
+                  th:if="${#fields != null and #fields.hasErrors('user.username')}"
+                  th:errors="${user.username}"
+                  class="text-red-600 text-xs mt-1"
+                ></p>
               </div>
             </div>
 
@@ -222,6 +227,11 @@
                   th:value="${user.email}"
                   class="w-full rounded-lg border border-slate-300 bg-white pl-10 pr-3 py-2.5 text-sm shadow-sm focus:border-[#0a1e3f] focus:outline-none focus:ring-1 focus:ring-[#0a1e3f]"
                 />
+                <p
+                  th:if="${#fields != null and #fields.hasErrors('user.email')}"
+                  th:errors="${user.email}"
+                  class="text-red-600 text-xs mt-1"
+                ></p>
               </div>
             </div>
           </div>
@@ -239,6 +249,11 @@
                 th:value="${user.firstName}"
                 class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm shadow-sm focus:border-[#0a1e3f] focus:outline-none focus:ring-1 focus:ring-[#0a1e3f]"
               />
+              <p
+                th:if="${#fields != null and #fields.hasErrors('user.firstName')}"
+                th:errors="${user.firstName}"
+                class="text-red-600 text-xs mt-1"
+              ></p>
             </div>
             <div>
               <label class="block text-sm font-bold text-slate-900 mb-2"
@@ -252,10 +267,15 @@
                 th:value="${user.lastName}"
                 class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm shadow-sm focus:border-[#0a1e3f] focus:outline-none focus:ring-1 focus:ring-[#0a1e3f]"
               />
+              <p
+                th:if="${#fields != null and #fields.hasErrors('user.lastName')}"
+                th:errors="${user.lastName}"
+                class="text-red-600 text-xs mt-1"
+              ></p>
             </div>
           </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label class="block text-sm font-bold text-slate-900 mb-2"
                 >Password <span class="text-red-500">*</span></label
@@ -285,13 +305,13 @@
                 />
               </div>
             </div>
-          </div>
+          </div> -->
 
           <div class="flex items-center gap-3 py-2">
             <label class="relative inline-flex items-center cursor-pointer">
               <input
                 type="checkbox"
-                name="active"
+                name="isActive"
                 th:checked="${user.isActive}"
                 class="sr-only peer"
               />
@@ -325,6 +345,7 @@
               <select
                 name="roles"
                 required
+                th:if="${!#lists.isEmpty(availableRoles)}"
                 class="w-full rounded-lg border border-slate-300 bg-white pl-10 pr-10 py-2.5 text-sm shadow-sm appearance-none focus:border-[#0a1e3f] focus:outline-none focus:ring-1 focus:ring-[#0a1e3f]"
               >
                 <option value="" disabled th:selected="${currentRole == null}">
@@ -337,15 +358,6 @@
                   th:selected="${availableRole.name == currentRole}"
                 >
                   Role Option
-                </option>
-                <option
-                  value="Greffier"
-                  th:if="${#lists.isEmpty(availableRoles)}"
-                >
-                  Greffier
-                </option>
-                <option value="Admin" th:if="${#lists.isEmpty(availableRoles)}">
-                  Admin
                 </option>
               </select>
               <span

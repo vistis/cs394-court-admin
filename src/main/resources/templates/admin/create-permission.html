@@ -1,0 +1,61 @@
+<!doctype html>
+<html
+  lang="en"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layouts/dashboard}"
+>
+  <head>
+    <title>Create Permission</title>
+  </head>
+  <body>
+    <div layout:fragment="content">
+      <h1 class="text-xl font-bold text-slate-900 mb-6">Create Permission</h1>
+      <div
+        class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 max-w-lg"
+      >
+        <form
+          th:action="@{/admin/permissions/create}"
+          th:object="${permission}"
+          method="post"
+          class="space-y-6"
+        >
+          <div>
+            <label class="block text-sm font-bold text-slate-900 mb-2"
+              >Permission Code <span class="text-red-500">*</span></label
+            >
+            <input
+              type="text"
+              name="code"
+              th:value="${permission?.code}"
+              required
+              placeholder="e.g. CASE_VIEW"
+              class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm font-mono shadow-sm focus:border-[#0a1e3f] focus:outline-none focus:ring-1 focus:ring-[#0a1e3f]"
+            />
+            <p class="text-xs text-slate-400 mt-1">
+              Uppercase words separated by underscores, e.g. MODULE_ACTION.
+            </p>
+            <p
+              th:if="${#fields.hasErrors('code')}"
+              th:errors="*{code}"
+              class="text-red-600 text-xs mt-1"
+            ></p>
+          </div>
+          <div class="flex justify-end gap-3">
+            <a
+              th:href="@{/admin/permissions}"
+              class="rounded-lg border border-slate-300 bg-white px-5 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 shadow-sm"
+              >Cancel</a
+            >
+            <button
+              type="submit"
+              class="rounded-lg bg-[#0a1e3f] px-5 py-2 text-sm font-semibold text-white hover:bg-[#112d5a] shadow-sm"
+            >
+              Save
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </body>
+</html>

@@ -146,7 +146,9 @@
 
         <!-- Search: fires on typing (debounced 400ms), no page reload, no Search button.
              hx-include="this" scopes the request to just this input's value. -->
-        <div class="px-6 py-4 bg-slate-50 border-b border-slate-200">
+        <div
+          class="px-6 py-4 bg-slate-50 border-b border-slate-200 flex gap-3 mb-4"
+        >
           <div class="relative max-w-md">
             <span
               class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400"
@@ -171,14 +173,38 @@
               th:value="${query}"
               placeholder="Search users..."
               hx-get="/admin/users/table"
-              hx-trigger="keyup changed delay:400ms, search"
+              hx-trigger="keyup changed delay:400ms"
               hx-target="#user-table-container"
               hx-swap="outerHTML"
-              hx-include="this"
-              th:attr="hx-push-url=@{/admin/users(q=${query})}"
+              hx-include="[name='status']"
+              hx-push-url="true"
               class="w-full rounded-md border border-slate-300 bg-white pl-10 pr-3 py-2 text-sm shadow-sm focus:border-[#0a1e3f] focus:outline-none focus:ring-1 focus:ring-[#0a1e3f]"
             />
           </div>
+
+          <select
+            name="status"
+            hx-get="/admin/users/table"
+            hx-trigger="change"
+            hx-target="#user-table-container"
+            hx-swap="outerHTML"
+            hx-include="[name='q']"
+            hx-push-url="true"
+            class="rounded-lg border border-slate-300 px-3 py-2 text-sm"
+          >
+            <option value="" th:selected="${statusFilter == ''}">
+              All Users
+            </option>
+            <option value="active" th:selected="${statusFilter == 'active'}">
+              Active Only
+            </option>
+            <option
+              value="inactive"
+              th:selected="${statusFilter == 'inactive'}"
+            >
+              Inactive Only
+            </option>
+          </select>
         </div>
 
         <!-- Everything below this point is the HTMX-swappable fragment.
@@ -238,8 +264,7 @@
                 </td>
                 <td class="px-6 py-4">
                   <span
-                    th:each="role : ${user.roles}"
-                    th:text="${role}"
+                    th:text="${user.roles}"
                     class="inline-block bg-slate-100 text-slate-700 text-xs font-mono px-2 py-1 rounded mr-1 mb-1"
                     >Role</span
                   >
@@ -291,11 +316,11 @@
             class="flex items-center justify-end gap-3 px-6 py-4 border-t border-slate-200"
           >
             <a
-              th:href="@{/admin/users(q=${query}, page=${prevPage})}"
+              th:href="@{/admin/users(q=${query}, status=${statusFilter}, page=${prevPage})}"
               hx-get="/admin/users/table"
               hx-target="#user-table-container"
               hx-swap="outerHTML"
-              th:attr="hx-vals='{&quot;q&quot;: &quot;' + ${query} + '&quot;, &quot;page&quot;: ' + ${prevPage} + '}', hx-push-url=@{/admin/users(q=${query}, page=${prevPage})}"
+              th:attr="hx-vals='{&quot;q&quot;: &quot;' + ${query} + '&quot;, &quot;page&quot;: ' + ${prevPage} + '}', hx-push-url=@{/admin/users(q=${query}, status=${statusFilter}, page=${prevPage})}"
               th:classappend="${!hasPrevious} ? 'pointer-events-none opacity-40' : ''"
               class="rounded-md border border-slate-300 px-3 py-1.5 text-sm text-slate-600 hover:bg-slate-50"
               >Previous</a
@@ -306,11 +331,11 @@
               >1 / 10</span
             >
             <a
-              th:href="@{/admin/users(q=${query}, page=${nextPage})}"
+              th:href="@{/admin/users(q=${query}, status=${statusFilter}, page=${nextPage})}"
               hx-get="/admin/users/table"
               hx-target="#user-table-container"
               hx-swap="outerHTML"
-              th:attr="hx-vals='{&quot;q&quot;: &quot;' + ${query} + '&quot;, &quot;page&quot;: ' + ${nextPage} + '}', hx-push-url=@{/admin/users(q=${query}, page=${nextPage})}"
+              th:attr="hx-vals='{&quot;q&quot;: &quot;' + ${query} + '&quot;, &quot;page&quot;: ' + ${nextPage} + '}', hx-push-url=@{/admin/users(q=${query}, status=${statusFilter}, page=${nextPage})}"
               th:classappend="${!hasNext} ? 'pointer-events-none opacity-40' : ''"
               class="rounded-md bg-[#1e3a5f] px-3 py-1.5 text-sm text-white hover:bg-[#254a75]"
               >Next</a

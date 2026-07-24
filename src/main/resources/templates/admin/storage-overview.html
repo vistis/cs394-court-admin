@@ -1,0 +1,90 @@
+<!doctype html>
+<html
+  lang="en"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layouts/dashboard}"
+>
+  <head>
+    <title>Storage Overview</title>
+  </head>
+  <body>
+    <div layout:fragment="content">
+      <h1 class="text-xl font-bold text-slate-900 mb-6">Storage Overview</h1>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+          <p class="text-sm text-slate-500">Total Files</p>
+          <p
+            class="text-3xl font-bold text-slate-900 mt-1"
+            th:text="${overview.totalObjectCount}"
+          ></p>
+        </div>
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+          <p class="text-sm text-slate-500">Total Storage Used</p>
+          <p
+            class="text-3xl font-bold text-slate-900 mt-1"
+            th:text="${overview.totalSizeDisplay}"
+          ></p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+          <h2 class="text-sm font-bold text-slate-900 mb-4">By Category</h2>
+          <table class="w-full text-sm">
+            <thead class="text-left text-slate-500">
+              <tr>
+                <th class="pb-2">Prefix</th>
+                <th class="pb-2">Files</th>
+                <th class="pb-2">Size</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                th:each="b : ${overview.prefixBreakdown}"
+                class="border-t border-slate-100"
+              >
+                <td
+                  class="py-2 font-mono text-xs text-slate-700"
+                  th:text="${b.prefix}"
+                ></td>
+                <td class="py-2 text-slate-600" th:text="${b.objectCount}"></td>
+                <td class="py-2 text-slate-600" th:text="${b.sizeDisplay}"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+          <h2 class="text-sm font-bold text-slate-900 mb-4">Recent Uploads</h2>
+          <ul class="divide-y divide-slate-100 text-sm">
+            <li
+              th:each="u : ${overview.recentUploads}"
+              class="py-2 flex items-center justify-between"
+            >
+              <span
+                class="font-mono text-xs text-slate-700 truncate max-w-[60%]"
+                th:text="${u.key}"
+              ></span>
+              <span
+                class="text-slate-500 text-xs"
+                th:text="${u.sizeDisplay}"
+              ></span>
+              <span
+                class="text-slate-400 text-xs"
+                th:text="${#temporals.format(u.lastModified, 'MMM d, HH:mm')}"
+              ></span>
+            </li>
+            <li
+              th:if="${#lists.isEmpty(overview.recentUploads)}"
+              class="py-4 text-center text-slate-400"
+            >
+              No uploads yet.
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

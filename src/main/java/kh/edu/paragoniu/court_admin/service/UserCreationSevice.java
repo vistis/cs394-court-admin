@@ -1,5 +1,7 @@
 package kh.edu.paragoniu.court_admin.service;
 
+
+import kh.edu.paragoniu.court_shared.dto.user.CreateUserRequestDTO;
 import kh.edu.paragoniu.court_shared.entity.SystemRole;
 import kh.edu.paragoniu.court_shared.entity.User;
 import kh.edu.paragoniu.court_shared.entity.UserRole;
@@ -33,33 +35,23 @@ public class UserCreationSevice {
 
     @Transactional
     public void createUser(
-        String username,
-        String email,
-        String firstName,
-        String lastName,
-        String rawPassword,
-        boolean active,
-        String roleName,
+        CreateUserRequestDTO request,
         MultipartFile profileImage
     ) {
-        SystemRole role = systemRoleRepository
-            .findByNameIgnoreCase(roleName)
-            .orElseThrow(() ->
-                new IllegalArgumentException("Unknow role: " + roleName)
-            );
+        SystemRole role = systemRoleRepository.findByNameIgnoreCase(request.getRoles())
+            .orElseThrow( () -> new IllegalArgumentException("Unknow role: " + request.getRoles()));
 
-        String profilePicturePath =
-            profileImage != null && !profileImage.isEmpty()
-                ? storageService.uploadFile(profileImage, "users")
-                : "N/A";
+        String profilePicturePath = (profileImage != null && !profileImage.isEmpty())
+            ? storageService.uploadFile(profileImage, "profiles/users")
+            : "N/A";
 
         User user = new User();
-        user.setUsername(username);
-        user.setEmail(email);
-        user.setFirstName(firstName);
-        user.setLastName(lastName);
-        user.setPassword(passwordEncoder.encode(rawPassword));
-        user.setActive(active);
+        user.setUsername(request.getUsername());
+        user.setEmail(request.getEmail());
+        user.setFirstName(request.getFirstName());
+        user.setLastName(request.getLastName());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setActive(request.getIsActive());
         user.setProfilePicturePath(profilePicturePath);
 
         user = userRepository.save(user);
