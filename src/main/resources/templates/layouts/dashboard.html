@@ -22,6 +22,7 @@
           </div>
           <nav class="px-3 py-4 space-y-1">
             <a
+              th:if="${#authorization.expression('hasAuthority(''USER_VIEW'')')}"
               th:href="@{/admin/users}"
               th:classappend="${activeNav == 'users'} ? 'bg-white/10 text-white' : 'text-slate-300 hover:bg-white/5 hover:text-white'"
               class="flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-colors"
@@ -44,6 +45,7 @@
               User Management
             </a>
             <a
+              th:if="${#authorization.expression('hasAuthority(''ROLE_VIEW'')')}"
               th:href="@{/admin/roles}"
               th:classappend="${activeNav == 'roles'} ? 'bg-white/10 text-white' : 'text-slate-300 hover:bg-white/5 hover:text-white'"
               class="flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-colors"
@@ -64,6 +66,7 @@
             </a>
 
             <a
+              th:if="${#authorization.expression('hasAuthority(''PERMISSION_VIEW'')')}"
               th:href="@{/admin/permissions}"
               th:classappend="${activeNav == 'permissions'} ? 'bg-white/10 text-white' : 'text-slate-300 hover:bg-white/5 hover:text-white'"
               class="flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-colors"
@@ -85,6 +88,7 @@
             </a>
 
             <a
+              th:if="${#authorization.expression('hasAuthority(''STORAGE_VIEW'')')}"
               th:href="@{/admin/storage}"
               th:classappend="${activeNav == 'storage'} ? 'bg-white/10 text-white' : 'text-slate-300 hover:bg-white/5 hover:text-white'"
               class="flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-colors"

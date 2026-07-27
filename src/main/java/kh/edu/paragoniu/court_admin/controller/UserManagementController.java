@@ -1,5 +1,6 @@
 package kh.edu.paragoniu.court_admin.controller;
 
+import java.util.Set;
 import java.util.UUID;
 
 import org.slf4j.Logger;
@@ -7,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.unit.DataSize;
@@ -59,6 +61,13 @@ public class UserManagementController {
     
     private static final Logger log = LoggerFactory.getLogger(UserManagementController.class);
 
+    private static final Set<String> SYSTEM_DEFULT_USERNAME = Set.of(
+        "default.admin",
+        "default.chief",
+        "default.greffier"
+    );
+
+    @PreAuthorize("hasAuthority('USER_VIEW')")
     @GetMapping("/admin/users")
     public String userManagement(
         @RequestParam(required = false) String q,
@@ -95,6 +104,7 @@ public class UserManagementController {
         return null; // anything else (null, "", "all") = no filter
     }
 
+    @PreAuthorize("hasAuthority('USER_VIEW')")
     @GetMapping("/admin/users/table")
     public String userTableFragment(
         @RequestParam(required = false) String q,
@@ -117,7 +127,7 @@ public class UserManagementController {
         return "admin/user-management :: userTable";
     }
 
-    
+    @PreAuthorize("hasAuthority('USER_CREATE')")
     @GetMapping("admin/users/create")
     public String createUser(Model model){
 
@@ -131,6 +141,7 @@ public class UserManagementController {
 
     }
 
+    @PreAuthorize("hasAuthority('USER_CREATE')")
     @PostMapping("/admin/users/create")
     public String createUser(
         @Valid @ModelAttribute("user") CreateUserRequestDTO request,
@@ -179,16 +190,16 @@ public class UserManagementController {
         return "redirect:/admin/users";
     }
 
-    
+    @PreAuthorize("hasAuthority('USER_UPDATE')")
     @GetMapping("/admin/users/update/{userId}")
     public String getUpdateUser(
         @PathVariable UUID userId,
         Model model
     ) {
-
+        UserDTO existing = userUpdateService.getUserById(userId);
+        boolean isDefualtUser = SYSTEM_DEFULT_USERNAME.contains(existing.getUsername().toLowerCase());
         model.addAttribute("activeNav", "users");
         if (!model.containsAttribute("user")) {
-            UserDTO existing = userUpdateService.getUserById(userId);
             UpdateUserRequestDTO dto = new UpdateUserRequestDTO();
             dto.setUsername(existing.getUsername());
             dto.setEmail(existing.getEmail());
@@ -199,6 +210,7 @@ public class UserManagementController {
             model.addAttribute("user", dto);
             model.addAttribute("profilePicturePath", existing.getProfilePicturePath());
         }
+        model.addAttribute("isDefaultUser", isDefualtUser);
         model.addAttribute("userId", userId);
         model.addAttribute("currentRole", ((UpdateUserRequestDTO) model.getAttribute("user")).getRoles());
         model.addAttribute("availableRoles", systemRoleRepository.findAll());
@@ -206,6 +218,7 @@ public class UserManagementController {
         return "/admin/update-user";
     }
 
+    @PreAuthorize("hasAuthority('USER_UPDATE')")
     @PostMapping("/admin/users/update/{userId}")
     public String processUpdateUser(
         @PathVariable UUID userId,
@@ -217,6 +230,12 @@ public class UserManagementController {
     ) {
 
         if (!bindingResult.hasErrors()) {
+
+            userRepository.findById(userId).ifPresent(currentUser -> {
+                if (SYSTEM_DEFULT_USERNAME.contains(currentUser.getUsername().toLowerCase())) {
+                    bindingResult.reject("protected.user", "System defualt user can not update");
+                }
+            });
             
             if (profileImage != null && !profileImage.isEmpty()) {
                 long maxFileSizeBytes = DataSize.parse(maxFileSize).toBytes();
@@ -224,6 +243,7 @@ public class UserManagementController {
                     bindingResult.reject("profileImage.tooLarge", "Profile picture must be under " + maxFileSize);
                 }
             }
+
             userRepository.findByUsername(request.getUsername())
                 .filter(existing -> !existing.getUserId().equals(userId))
                 .ifPresent(existing -> bindingResult.rejectValue("username", "duplicate", "Username is already taken"));

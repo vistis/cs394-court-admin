@@ -32,11 +32,13 @@
           </a>
           <div>
             <h1 class="text-xl font-bold text-slate-900">Update User</h1>
+            <p th:if="${isDefaultUser}">System default User, Can Not Update</p>
           </div>
         </div>
         <div class="flex items-center gap-3">
           <a
             th:href="@{/admin/users}"
+            th:if="${!isDefaultUser}"
             class="rounded-lg border border-slate-300 bg-white px-5 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors shadow-sm"
           >
             Cancel
@@ -44,6 +46,7 @@
           <button
             type="submit"
             form="updateUserForm"
+            th:if="${!isDefaultUser}"
             class="rounded-lg bg-[#0a1e3f] px-5 py-2 text-sm font-semibold text-white hover:bg-[#112d5a] transition-colors shadow-sm"
           >
             Save User
@@ -187,6 +190,7 @@
                   required
                   placeholder="e.g. j.dupont"
                   th:value="${user?.username}"
+                  th:disabled="${isDefaultUser}"
                   class="w-full rounded-lg border border-slate-300 bg-white pl-10 pr-3 py-2.5 text-sm shadow-sm focus:border-[#0a1e3f] focus:outline-none focus:ring-1 focus:ring-[#0a1e3f]"
                 />
                 <p
@@ -225,6 +229,7 @@
                   required
                   placeholder="staff@lexguard.gov"
                   th:value="${user.email}"
+                  th:disabled="${isDefaultUser}"
                   class="w-full rounded-lg border border-slate-300 bg-white pl-10 pr-3 py-2.5 text-sm shadow-sm focus:border-[#0a1e3f] focus:outline-none focus:ring-1 focus:ring-[#0a1e3f]"
                 />
                 <p
@@ -247,6 +252,7 @@
                 required
                 placeholder="Jonh"
                 th:value="${user.firstName}"
+                th:disabled="${isDefaultUser}"
                 class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm shadow-sm focus:border-[#0a1e3f] focus:outline-none focus:ring-1 focus:ring-[#0a1e3f]"
               />
               <p
@@ -265,6 +271,7 @@
                 required
                 placeholder="David"
                 th:value="${user.lastName}"
+                th:disabled="${isDefaultUser}"
                 class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm shadow-sm focus:border-[#0a1e3f] focus:outline-none focus:ring-1 focus:ring-[#0a1e3f]"
               />
               <p
@@ -313,6 +320,7 @@
                 type="checkbox"
                 name="isActive"
                 th:checked="${user.isActive}"
+                th:disabled="${isDefaultUser}"
                 class="sr-only peer"
               />
               <div
@@ -346,6 +354,7 @@
                 name="roles"
                 required
                 th:if="${!#lists.isEmpty(availableRoles)}"
+                th:disabled="${isDefaultUser}"
                 class="w-full rounded-lg border border-slate-300 bg-white pl-10 pr-10 py-2.5 text-sm shadow-sm appearance-none focus:border-[#0a1e3f] focus:outline-none focus:ring-1 focus:ring-[#0a1e3f]"
               >
                 <option value="" disabled th:selected="${currentRole == null}">

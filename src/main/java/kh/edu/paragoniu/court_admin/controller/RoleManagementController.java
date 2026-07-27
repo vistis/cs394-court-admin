@@ -1,8 +1,10 @@
 package kh.edu.paragoniu.court_admin.controller;
 
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -23,6 +25,8 @@ public class RoleManagementController  {
     @Autowired 
     private SystemRoleRepository systemRoleRepository;
 
+
+    @PreAuthorize("hasAuthority('ROLE_VIEW')")
     @GetMapping("/admin/roles")
     public String roleManagement(Model model) {
         model.addAttribute("activeNav", "roles");
@@ -30,14 +34,17 @@ public class RoleManagementController  {
         return "admin/role-management";
     }
 
+    @PreAuthorize("hasAuthority('ROLE_VIEW')")
     @GetMapping("/admin/roles/{roleId}")
     public String roleDetail(@PathVariable Integer roleId, Model model) {
         RoleDetailDTO detail = roleManagementService.getRoleDetail(roleId);
         model.addAttribute("activeNav", "roles");
         model.addAttribute("role", detail);
+        model.addAttribute("groupedPermissions", roleManagementService.getGroupedPermission(roleId));
         return "admin/role-detail";
     }
 
+    @PreAuthorize("hasAuthority('ROLE_CREATE')")
     @GetMapping("/admin/roles/create")
     public String showCreateForm(Model model) {
         if (!model.containsAttribute("role")) {
@@ -48,7 +55,8 @@ public class RoleManagementController  {
         return "admin/create-role";
     }
 
-    @PostMapping("/admin/roles/create")
+    @PreAuthorize("hasAuthority('ROLE_CREATE')")
+   @PostMapping("/admin/roles/create")
     public String createRole(
             @Valid @ModelAttribute("role") CreateRoleRequestDTO request,
             BindingResult bindingResult,
@@ -60,30 +68,35 @@ public class RoleManagementController  {
 
         if (bindingResult.hasErrors()) {
             model.addAttribute("activeNav", "roles");
-            model.addAttribute("allPermissions", markSelectedGrouped(
+            model.addAttribute("groupedPermissions", markSelectedGrouped(
                 roleManagementService.getGroupedPermission(), request.getPermissionIds()));
             return "admin/create-role";
         }
 
         Integer newRoleId = roleManagementService.createRole(request);
         return "redirect:/admin/roles/" + newRoleId;
-    }
+    } 
 
+    @PreAuthorize("hasAuthority('ROLE_UPDATE')")
     @GetMapping("/admin/roles/{roleId}/edit")
     public String showEditForm(@PathVariable Integer roleId, Model model) {
+        RoleDetailDTO existing = roleManagementService.getRoleDetail(roleId);
+        //boolean isDefaultRole = SYSTEM_DEFAULT_ROLES.contains(existing.getName().toUpperCase());
+        boolean isDefaultRole = systemRoleRepository.existsBySystemRoleIdAndIsDefaultTrue(roleId);
         if (!model.containsAttribute("role")) {
-            RoleDetailDTO existing = roleManagementService.getRoleDetail(roleId);
             CreateRoleRequestDTO dto = new CreateRoleRequestDTO();
             dto.setName(existing.getName());
             dto.setPermissionIds(existing.getPermissions().stream().map(PermissionDTO::getPermissionId).toList());
             model.addAttribute("role", dto);
         }
+        model.addAttribute("isDefaultRole", isDefaultRole);
         model.addAttribute("activeNav", "roles");
         model.addAttribute("roleId", roleId);
         model.addAttribute("groupedPermissions", roleManagementService.getGroupedPermission(roleId));
         return "admin/edit-role";
     }
 
+    @PreAuthorize("hasAuthority('ROLE_UPDATE')")
     @PostMapping("/admin/roles/{roleId}/edit")
     public String updateRole(
             @PathVariable Integer roleId,
@@ -92,6 +105,13 @@ public class RoleManagementController  {
             Model model) {
 
         if (!bindingResult.hasErrors()) {
+            
+            systemRoleRepository.findByNameIgnoreCase(request.getName()).ifPresent(currentRole -> {
+                if (systemRoleRepository.existsBySystemRoleIdAndIsDefaultTrue(currentRole.getSystemRoleId())) {
+                    bindingResult.reject("protected:role", "System role can not be updated");
+                }
+            });
+
             systemRoleRepository.findByNameIgnoreCase(request.getName())
                 .filter(existing -> !existing.getSystemRoleId().equals(roleId))
                 .ifPresent(existing -> bindingResult.rejectValue("name", "duplicate", "A role with this name already exists"));
@@ -109,6 +129,7 @@ public class RoleManagementController  {
         return "redirect:/admin/roles/" + roleId;
     }
 
+    @PreAuthorize("hasAuthority('ROLE_DELETE')")
     @PostMapping("/admin/roles/{roleId}/delete")
     public String deleteRole(@PathVariable Integer roleId, RedirectAttributes redirectAttributes) {
         boolean deleted = roleManagementService.deleteRole(roleId);

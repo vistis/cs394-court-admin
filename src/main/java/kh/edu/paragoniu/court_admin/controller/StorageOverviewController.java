@@ -1,6 +1,7 @@
 package kh.edu.paragoniu.court_admin.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,6 +14,7 @@ public class StorageOverviewController {
     @Autowired
     private StorageOverviewService storageOverviewService;
 
+    @PreAuthorize("hasAuthority('STORAGE_VIEW')")
     @GetMapping("/admin/storage")
     public String storageOverview(Model model) {
         model.addAttribute("activeNav", "storage");

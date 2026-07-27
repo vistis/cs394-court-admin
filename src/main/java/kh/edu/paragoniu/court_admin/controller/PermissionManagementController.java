@@ -1,6 +1,7 @@
 package kh.edu.paragoniu.court_admin.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -25,6 +26,7 @@ public class PermissionManagementController {
     @Autowired
     private SystemPermissionRepository systemPermissionRepository;
 
+    @PreAuthorize("hasAuthority('PERMISSION_VIEW')")
     @GetMapping("/admin/permissions")
     public String permissionManagement(Model model) {
         model.addAttribute("activeNav", "permissions");

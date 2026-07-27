@@ -58,7 +58,9 @@
 
         <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
           <h2 class="text-sm font-bold text-slate-900 mb-4">Recent Uploads</h2>
-          <ul class="divide-y divide-slate-100 text-sm">
+          <ul
+            class="divide-y divide-slate-100 text-sm overflow-hidden max-h-100 overflow-y-auto"
+          >
             <li
               th:each="u : ${overview.recentUploads}"
               class="py-2 flex items-center justify-between"

@@ -17,6 +17,7 @@
           </h1>
         </div>
         <a
+          th:if="${#authorization.expression('hasAuthority(''ROLE_CREATE'')')}"
           th:href="@{/admin/roles/create}"
           class="rounded-lg bg-[#0a1e3f] px-5 py-2 text-sm font-semibold text-white hover:bg-[#112d5a] shadow-sm"
         >
@@ -53,6 +54,7 @@
             <tr th:each="role : ${roles}" class="border-t border-slate-100">
               <td class="px-6 py-4">
                 <a
+                  th:if="${#authorization.expression('hasAuthority(''ROLE_VIEW'')')}"
                   th:href="@{/admin/roles/{id}(id=${role.roleId})}"
                   class="font-semibold text-slate-900 hover:underline"
                 >
@@ -69,12 +71,14 @@
               ></td>
               <td class="px-6 py-4 text-right space-x-2">
                 <a
+                  th:if="${#authorization.expression('hasAuthority(''ROLE_UPDATE'')')}"
                   th:href="@{/admin/roles/{id}/edit(id=${role.roleId})}"
                   class="inline-block rounded-lg bg-[#0a1e3f] px-4 py-1.5 text-xs font-semibold text-white hover:bg-[#112d5a]"
-                  >Edit</a
+                  >Update</a
                 >
                 <button
                   type="button"
+                  th:if="${#authorization.expression('hasAuthority(''ROLE_DELETE'')')}"
                   th:attr="onclick=|openDeleteModal('${role.roleId}', '${role.name}', ${role.userCount}, '@{/admin/roles/{id}/delete(id=${role.roleId})}')|"
                   class="text-white bg-red-600 rounded-lg px-4 py-1.5 text-xs front-semibold hover:bg-red-800"
                   title="Delete"

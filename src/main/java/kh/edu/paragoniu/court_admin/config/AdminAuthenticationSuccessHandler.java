@@ -26,14 +26,16 @@ public class AdminAuthenticationSuccessHandler extends SimpleUrlAuthenticationSu
     public void onAuthenticationSuccess(HttpServletRequest request,
                                         HttpServletResponse response,
                                         Authentication authentication) throws IOException, ServletException {
-        String username = authentication.getName();
+        //String username = authentication.getName();
 
-        User user = userRepository.findAuthenticatedUserByUsernameOrEmail(username).orElse(null);
+        Boolean hasAccess = authentication.getAuthorities().stream()
+            .anyMatch(a -> a.getAuthority().equals("ADMIN_PORTAL_ACCESS"));
+        //User user = userRepository.findAuthenticatedUserByUsernameOrEmail(username).orElse(null);
 
-        boolean isAdministrator = user != null && user.getUserRoles().stream()
-                .anyMatch(ur -> ur.getSystemRole().getName().equals("ADMINISTRATOR"));
+        // boolean isAdministrator = user != null && user.getUserRoles().stream()
+        //         .anyMatch(ur -> ur.getSystemRole().getName().equals("ADMINISTRATOR"));
 
-        if (!isAdministrator) {
+        if (!hasAccess) {
             SecurityContextHolder.clearContext();
             request.getSession().invalidate();
             getRedirectStrategy().sendRedirect(request, response, "/login?error");

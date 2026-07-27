@@ -10,30 +10,53 @@
   </head>
   <body>
     <div layout:fragment="content">
-      <div class="flex items-center gap-4 mb-6">
-        <a
-          th:href="@{/admin/roles}"
-          class="h-10 w-10 border border-slate-200 bg-white rounded-lg flex items-center justify-center text-slate-600 hover:bg-slate-50 transition-colors shadow-sm"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-5 w-5"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
+      <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center gap-4 mb-6">
+          <a
+            th:href="@{/admin/roles}"
+            class="h-10 w-10 border border-slate-200 bg-white rounded-lg flex items-center justify-center text-slate-600 hover:bg-slate-50 transition-colors shadow-sm"
           >
-            <line x1="19" y1="12" x2="5" y2="12"></line>
-            <polyline points="12 19 5 12 12 5"></polyline>
-          </svg>
-        </a>
-        <h1 class="text-xl font-bold text-slate-900">Edit Role</h1>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-5 w-5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <line x1="19" y1="12" x2="5" y2="12"></line>
+              <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+          </a>
+          <div>
+            <h1 class="text-xl font-bold text-slate-900">Update Role</h1>
+            <p th:if="${isDefaultRole}">System Default Role, Can not update</p>
+          </div>
+        </div>
+        <div class="flex justify-end gap-3">
+          <a
+            th:href="@{/admin/roles}"
+            th:if="${!isDefaultRole}"
+            class="rounded-lg border border-slate-300 bg-white px-5 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 shadow-sm"
+          >
+            Cancel</a
+          >
+          <button
+            form="formEditRole"
+            type="submit"
+            th:if="${!isDefaultRole}"
+            class="rounded-lg bg-[#0a1e3f] px-5 py-2 text-sm font-semibold text-white hover:bg-[#112d5a] shadow-sm"
+          >
+            Save Changes
+          </button>
+        </div>
       </div>
 
       <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
         <form
+          id="formEditRole"
           th:action="@{/admin/roles/{roleId}/edit(roleId=${roleId})}"
           th:object="${role}"
           method="post"
@@ -47,6 +70,7 @@
               type="text"
               name="name"
               th:value="${role?.name}"
+              th:disabled="${isDefaultRole}"
               required
               class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm shadow-sm focus:border-[#0a1e3f] focus:outline-none focus:ring-1 focus:ring-[#0a1e3f]"
             />
@@ -62,7 +86,7 @@
               >Permissions <span class="text-red-500">*</span></label
             >
             <div
-              class="border border-slate-200 rounded-lg overflow-hidden max-h-96 overflow-y-auto"
+              class="border border-slate-200 rounded-lg overflow-hidden max-h-100 overflow-y-auto p-5"
             >
               <div
                 th:each="group : ${groupedPermissions}"
@@ -82,6 +106,8 @@
                       name="permissionIds"
                       th:value="${p.permissionId}"
                       th:checked="${p.assigned}"
+                      th:disabled="${isDefaultRole}"
+                      class="h-4 w-4"
                     />
                     <span
                       th:text="${#strings.arrayJoin(
@@ -97,21 +123,6 @@
               th:errors="*{permissionIds}"
               class="text-red-600 text-xs mt-1"
             ></p>
-          </div>
-
-          <div class="flex justify-end gap-3">
-            <a
-              th:href="@{/admin/roles}"
-              class="rounded-lg border border-slate-300 bg-white px-5 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 shadow-sm"
-            >
-              Cancel</a
-            >
-            <button
-              type="submit"
-              class="rounded-lg bg-[#0a1e3f] px-5 py-2 text-sm font-semibold text-white hover:bg-[#112d5a] shadow-sm"
-            >
-              Save Changes
-            </button>
           </div>
         </form>
       </div>
