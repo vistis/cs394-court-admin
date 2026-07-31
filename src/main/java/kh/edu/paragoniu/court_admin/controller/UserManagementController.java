@@ -1,11 +1,21 @@
 package kh.edu.paragoniu.court_admin.controller;
 
+import jakarta.validation.Valid;
 import java.util.Set;
 import java.util.UUID;
-
+import kh.edu.paragoniu.court_admin.service.UserCreationSevice;
+import kh.edu.paragoniu.court_admin.service.UserDeletionService;
+import kh.edu.paragoniu.court_admin.service.UserManagementService;
+import kh.edu.paragoniu.court_admin.service.UserManagementService.UserState;
+import kh.edu.paragoniu.court_admin.service.UserUpdateService;
+import kh.edu.paragoniu.court_shared.dto.user.CreateUserRequestDTO;
+import kh.edu.paragoniu.court_shared.dto.user.UpdateUserRequestDTO;
+import kh.edu.paragoniu.court_shared.dto.user.UserDTO;
+import kh.edu.paragoniu.court_shared.dto.user.UserPageResultDTO;
+import kh.edu.paragoniu.court_shared.repository.SystemRoleRepository;
+import kh.edu.paragoniu.court_shared.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,20 +30,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import jakarta.validation.Valid;
-import kh.edu.paragoniu.court_admin.service.UserCreationSevice;
-import kh.edu.paragoniu.court_admin.service.UserDeletionService;
-import kh.edu.paragoniu.court_admin.service.UserManagementService;
-import kh.edu.paragoniu.court_admin.service.UserUpdateService;
-import kh.edu.paragoniu.court_admin.service.UserManagementService.UserState;
-import kh.edu.paragoniu.court_shared.dto.user.CreateUserRequestDTO;
-import kh.edu.paragoniu.court_shared.dto.user.UpdateUserRequestDTO;
-import kh.edu.paragoniu.court_shared.dto.user.UserDTO;
-import kh.edu.paragoniu.court_shared.dto.user.UserPageResultDTO;
-import kh.edu.paragoniu.court_shared.repository.SystemRoleRepository;
-import kh.edu.paragoniu.court_shared.repository.UserRepository;
-
 
 @Controller
 public class UserManagementController {
@@ -58,8 +54,10 @@ public class UserManagementController {
 
     @Value("${spring.servlet.multipart.max-file-size}")
     private String maxFileSize;
-    
-    private static final Logger log = LoggerFactory.getLogger(UserManagementController.class);
+
+    private static final Logger log = LoggerFactory.getLogger(
+        UserManagementController.class
+    );
 
     private static final Set<String> SYSTEM_DEFULT_USERNAME = Set.of(
         "default.admin",
@@ -76,7 +74,11 @@ public class UserManagementController {
         Model model
     ) {
         Boolean statusFilter = parseStatusFilter(status);
-        UserPageResultDTO pageResult = userManagementService.search(q, statusFilter, page);
+        UserPageResultDTO pageResult = userManagementService.search(
+            q,
+            statusFilter,
+            page
+        );
         UserState state = userManagementService.getState();
 
         model.addAttribute("activeNav", "users");
@@ -85,8 +87,17 @@ public class UserManagementController {
 
         model.addAttribute("currentPage", pageResult.getCurrentPage());
         model.addAttribute("totalPages", pageResult.getTotalPages());
-        model.addAttribute("prevPage", Math.max(pageResult.getCurrentPage() -1, 1));
-        model.addAttribute("nextPage", Math.min(pageResult.getCurrentPage() + 1, pageResult.getTotalPages()));
+        model.addAttribute(
+            "prevPage",
+            Math.max(pageResult.getCurrentPage() - 1, 1)
+        );
+        model.addAttribute(
+            "nextPage",
+            Math.min(
+                pageResult.getCurrentPage() + 1,
+                pageResult.getTotalPages()
+            )
+        );
         model.addAttribute("hasPrevious", pageResult.isHasPrevious());
         model.addAttribute("hasNext", pageResult.isHasNext());
 
@@ -95,7 +106,6 @@ public class UserManagementController {
         model.addAttribute("inactiveUsers", state.inactive());
 
         return "admin/user-management";
-
     }
 
     private Boolean parseStatusFilter(String status) {
@@ -113,14 +123,27 @@ public class UserManagementController {
         Model model
     ) {
         Boolean statusFilter = parseStatusFilter(status);
-        UserPageResultDTO pageResult = userManagementService.search(q, statusFilter, page);
+        UserPageResultDTO pageResult = userManagementService.search(
+            q,
+            statusFilter,
+            page
+        );
 
         model.addAttribute("query", q == null ? "" : q);
         model.addAttribute("users", pageResult.getUsers());
         model.addAttribute("currentPage", pageResult.getCurrentPage());
         model.addAttribute("totalPages", pageResult.getTotalPages());
-        model.addAttribute("prevPage", Math.max(pageResult.getCurrentPage() - 1, 1));
-        model.addAttribute("nextPage", Math.min(pageResult.getCurrentPage() + 1, pageResult.getTotalPages()));
+        model.addAttribute(
+            "prevPage",
+            Math.max(pageResult.getCurrentPage() - 1, 1)
+        );
+        model.addAttribute(
+            "nextPage",
+            Math.min(
+                pageResult.getCurrentPage() + 1,
+                pageResult.getTotalPages()
+            )
+        );
         model.addAttribute("hasPrevious", pageResult.isHasPrevious());
         model.addAttribute("hasNext", pageResult.isHasNext());
 
@@ -129,16 +152,14 @@ public class UserManagementController {
 
     @PreAuthorize("hasAuthority('USER_CREATE')")
     @GetMapping("admin/users/create")
-    public String createUser(Model model){
-
+    public String createUser(Model model) {
         if (!model.containsAttribute("user")) {
             model.addAttribute("user", new CreateUserRequestDTO());
         }
-        
+
         model.addAttribute("activeNav", "users");
         model.addAttribute("availableRoles", systemRoleRepository.findAll());
         return "admin/create-user";
-
     }
 
     @PreAuthorize("hasAuthority('USER_CREATE')")
@@ -151,31 +172,53 @@ public class UserManagementController {
         RedirectAttributes redirectAttributes
     ) {
         if (!bindingResult.hasErrors()) {
-            
             if (profileImage == null || profileImage.isEmpty()) {
-                bindingResult.reject("profileImage", "Profile picture is required");
+                bindingResult.reject(
+                    "profileImage",
+                    "Profile picture is required"
+                );
             } else {
                 long maxFileSizeBytes = DataSize.parse(maxFileSize).toBytes();
                 if (profileImage.getSize() > maxFileSizeBytes) {
-                    bindingResult.reject("profileImage.tooLarge", "Profile picture must be under" + maxFileSizeBytes);
+                    bindingResult.reject(
+                        "profileImage.tooLarge",
+                        "Profile picture must be under" + maxFileSizeBytes
+                    );
                 }
             }
 
             if (userRepository.existsByUsername(request.getUsername())) {
-                bindingResult.rejectValue("username", "duplicate", "Username is already taken");
+                bindingResult.rejectValue(
+                    "username",
+                    "duplicate",
+                    "Username is already taken"
+                );
             }
 
             if (userRepository.existsByEmail(request.getEmail())) {
-                bindingResult.rejectValue("email", "duplicate", "Email is already in use");
+                bindingResult.rejectValue(
+                    "email",
+                    "duplicate",
+                    "Email is already in use"
+                );
             }
 
-            if (!systemRoleRepository.existsByNameIgnoreCase(request.getRoles())) {
-                bindingResult.rejectValue("roles", "invalid", "Selected role no longer exists");
+            if (
+                !systemRoleRepository.existsByNameIgnoreCase(request.getRoles())
+            ) {
+                bindingResult.rejectValue(
+                    "roles",
+                    "invalid",
+                    "Selected role no longer exists"
+                );
             }
         }
 
         if (bindingResult.hasErrors()) {
-            model.addAttribute("availableRoles", systemRoleRepository.findAll());
+            model.addAttribute(
+                "availableRoles",
+                systemRoleRepository.findAll()
+            );
             return "admin/create-user";
         }
 
@@ -183,7 +226,10 @@ public class UserManagementController {
             userCreationSevice.createUser(request, profileImage);
         } catch (Exception e) {
             log.error("Failed to create user", e);
-            redirectAttributes.addFlashAttribute("error", "could not create user: " + e.getMessage());
+            redirectAttributes.addFlashAttribute(
+                "error",
+                "could not create user: " + e.getMessage()
+            );
             return "redirect:/admin/users/create";
         }
 
@@ -192,12 +238,11 @@ public class UserManagementController {
 
     @PreAuthorize("hasAuthority('USER_UPDATE')")
     @GetMapping("/admin/users/update/{userId}")
-    public String getUpdateUser(
-        @PathVariable UUID userId,
-        Model model
-    ) {
+    public String getUpdateUser(@PathVariable UUID userId, Model model) {
         UserDTO existing = userUpdateService.getUserById(userId);
-        boolean isDefualtUser = SYSTEM_DEFULT_USERNAME.contains(existing.getUsername().toLowerCase());
+        boolean isDefualtUser = SYSTEM_DEFULT_USERNAME.contains(
+            existing.getUsername().toLowerCase()
+        );
         model.addAttribute("activeNav", "users");
         if (!model.containsAttribute("user")) {
             UpdateUserRequestDTO dto = new UpdateUserRequestDTO();
@@ -208,14 +253,20 @@ public class UserManagementController {
             dto.setIsActive(existing.isActive());
             dto.setRoles(existing.getRoles());
             model.addAttribute("user", dto);
-            model.addAttribute("profilePicturePath", existing.getProfilePicturePath());
+            model.addAttribute(
+                "profilePicturePath",
+                existing.getProfilePicturePath()
+            );
         }
         model.addAttribute("isDefaultUser", isDefualtUser);
         model.addAttribute("userId", userId);
-        model.addAttribute("currentRole", ((UpdateUserRequestDTO) model.getAttribute("user")).getRoles());
+        model.addAttribute(
+            "currentRole",
+            ((UpdateUserRequestDTO) model.getAttribute("user")).getRoles()
+        );
         model.addAttribute("availableRoles", systemRoleRepository.findAll());
 
-        return "/admin/update-user";
+        return "admin/update-user";
     }
 
     @PreAuthorize("hasAuthority('USER_UPDATE')")
@@ -228,49 +279,86 @@ public class UserManagementController {
         RedirectAttributes redirectAttributes,
         Model model
     ) {
-
         if (!bindingResult.hasErrors()) {
-
             userRepository.findById(userId).ifPresent(currentUser -> {
-                if (SYSTEM_DEFULT_USERNAME.contains(currentUser.getUsername().toLowerCase())) {
-                    bindingResult.reject("protected.user", "System defualt user can not update");
+                if (
+                    SYSTEM_DEFULT_USERNAME.contains(
+                        currentUser.getUsername().toLowerCase()
+                    )
+                ) {
+                    bindingResult.reject(
+                        "protected.user",
+                        "System defualt user can not update"
+                    );
                 }
             });
-            
+
             if (profileImage != null && !profileImage.isEmpty()) {
                 long maxFileSizeBytes = DataSize.parse(maxFileSize).toBytes();
                 if (profileImage.getSize() > maxFileSizeBytes) {
-                    bindingResult.reject("profileImage.tooLarge", "Profile picture must be under " + maxFileSize);
+                    bindingResult.reject(
+                        "profileImage.tooLarge",
+                        "Profile picture must be under " + maxFileSize
+                    );
                 }
             }
 
-            userRepository.findByUsername(request.getUsername())
+            userRepository
+                .findByUsername(request.getUsername())
                 .filter(existing -> !existing.getUserId().equals(userId))
-                .ifPresent(existing -> bindingResult.rejectValue("username", "duplicate", "Username is already taken"));
+                .ifPresent(existing ->
+                    bindingResult.rejectValue(
+                        "username",
+                        "duplicate",
+                        "Username is already taken"
+                    )
+                );
 
-            userRepository.findByEmail(request.getEmail())
+            userRepository
+                .findByEmail(request.getEmail())
                 .filter(existing -> !existing.getUserId().equals(userId))
-                .ifPresent(existing -> bindingResult.rejectValue("email", "duplicate", "Email is already in use"));
+                .ifPresent(existing ->
+                    bindingResult.rejectValue(
+                        "email",
+                        "duplicate",
+                        "Email is already in use"
+                    )
+                );
 
-            if (!systemRoleRepository.existsByNameIgnoreCase(request.getRoles())) {
-                bindingResult.rejectValue("roles", "invalid", "Selected role no longer exists");
+            if (
+                !systemRoleRepository.existsByNameIgnoreCase(request.getRoles())
+            ) {
+                bindingResult.rejectValue(
+                    "roles",
+                    "invalid",
+                    "Selected role no longer exists"
+                );
             }
         }
 
         if (bindingResult.hasErrors()) {
             model.addAttribute("userId", userId);
-            model.addAttribute("profilePicturePath", userUpdateService.getUserById(userId).getProfilePicturePath());
+            model.addAttribute(
+                "profilePicturePath",
+                userUpdateService.getUserById(userId).getProfilePicturePath()
+            );
             model.addAttribute("currentRole", request.getRoles());
-            model.addAttribute("availableRoles", systemRoleRepository.findAll());
+            model.addAttribute(
+                "availableRoles",
+                systemRoleRepository.findAll()
+            );
 
-             return "/admin/update-user";
+            return "admin/update-user";
         }
-        
+
         try {
             userUpdateService.updateUser(userId, request, profileImage);
         } catch (Exception e) {
             log.error("Failed to update user {}", userId, e);
-            redirectAttributes.addFlashAttribute("error", "Could not update user: " + e.getMessage());
+            redirectAttributes.addFlashAttribute(
+                "error",
+                "Could not update user: " + e.getMessage()
+            );
 
             return "redirect:/admin/users" + "/update/" + userId;
         }
@@ -278,18 +366,24 @@ public class UserManagementController {
         return "redirect:/admin/users";
     }
 
-
     @PostMapping("/admin/users/delete/{userId}")
-    public String deleteUser(@PathVariable UUID userId, RedirectAttributes redirectAttributes) {
+    public String deleteUser(
+        @PathVariable UUID userId,
+        RedirectAttributes redirectAttributes
+    ) {
         try {
             userDeletionService.deleteUser(userId);
-            redirectAttributes.addFlashAttribute("success", "User deleted successfully.");
+            redirectAttributes.addFlashAttribute(
+                "success",
+                "User deleted successfully."
+            );
         } catch (Exception e) {
             log.error("Failed to delete user {}", userId, e);
-            redirectAttributes.addFlashAttribute("error", "Could not delete user: " + e.getMessage());
+            redirectAttributes.addFlashAttribute(
+                "error",
+                "Could not delete user: " + e.getMessage()
+            );
         }
         return "redirect:/admin/users";
     }
-
-    
 }
