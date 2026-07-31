@@ -224,6 +224,10 @@ public class UserManagementController {
 
         try {
             userCreationSevice.createUser(request, profileImage);
+            redirectAttributes.addFlashAttribute(
+                "success",
+                "User Create successfully."
+            );
         } catch (Exception e) {
             log.error("Failed to create user", e);
             redirectAttributes.addFlashAttribute(
@@ -240,7 +244,7 @@ public class UserManagementController {
     @GetMapping("/admin/users/update/{userId}")
     public String getUpdateUser(@PathVariable UUID userId, Model model) {
         UserDTO existing = userUpdateService.getUserById(userId);
-        boolean isDefualtUser = SYSTEM_DEFULT_USERNAME.contains(
+        boolean isDefaultUser = SYSTEM_DEFULT_USERNAME.contains(
             existing.getUsername().toLowerCase()
         );
         model.addAttribute("activeNav", "users");
@@ -258,7 +262,7 @@ public class UserManagementController {
                 existing.getProfilePicturePath()
             );
         }
-        model.addAttribute("isDefaultUser", isDefualtUser);
+        model.addAttribute("isDefaultUser", isDefaultUser);
         model.addAttribute("userId", userId);
         model.addAttribute(
             "currentRole",
@@ -353,6 +357,10 @@ public class UserManagementController {
 
         try {
             userUpdateService.updateUser(userId, request, profileImage);
+            redirectAttributes.addFlashAttribute(
+                "success",
+                "User Updated successfully."
+            );
         } catch (Exception e) {
             log.error("Failed to update user {}", userId, e);
             redirectAttributes.addFlashAttribute(
@@ -366,11 +374,33 @@ public class UserManagementController {
         return "redirect:/admin/users";
     }
 
+    @PreAuthorize("hasAuthority('USER_DELETE')")
     @PostMapping("/admin/users/delete/{userId}")
     public String deleteUser(
         @PathVariable UUID userId,
         RedirectAttributes redirectAttributes
     ) {
+        UserDTO existing;
+
+        try {
+            existing = userUpdateService.getUserById(userId);
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("error", "User not found.");
+            return "redirect:/admin/users";
+        }
+
+        boolean isDefaultUser = SYSTEM_DEFULT_USERNAME.contains(
+            existing.getUsername().toLowerCase()
+        );
+
+        if (isDefaultUser) {
+            redirectAttributes.addFlashAttribute(
+                "error",
+                "This is a default system account and cannot be deleted."
+            );
+            return "redirect:/admin/users";
+        }
+
         try {
             userDeletionService.deleteUser(userId);
             redirectAttributes.addFlashAttribute(

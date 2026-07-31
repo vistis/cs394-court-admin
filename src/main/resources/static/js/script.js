@@ -7,7 +7,8 @@ function openDeleteModal(button) {
   const userId = button.dataset.userId;
   const userName = button.dataset.userName;
   document.getElementById("deleteUserName").textContent = userName;
-  document.getElementById("deleteUserForm").action = "/admin/users/delete/" + userId;
+  document.getElementById("deleteUserForm").action =
+    "/admin/users/delete/" + userId;
   const modal = document.getElementById("deleteModal");
   modal.classList.remove("hidden");
   modal.classList.add("flex");
@@ -19,7 +20,7 @@ function closeDeleteModal() {
   modal.classList.remove("flex");
 }
 
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", function () {
   const modal = document.getElementById("deleteModal");
   if (modal) {
     modal.addEventListener("click", function (e) {
@@ -42,3 +43,18 @@ function previewProfilePicture(input) {
     reader.readAsDataURL(file);
   }
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+  const autoDismiss = (elementId, delayMs = 5000) => {
+    const element = document.getElementById(elementId);
+    if (element) {
+      setTimeout(() => {
+        element.style.opacity = "0";
+        setTimeout(() => element.remove(), 500);
+      }, delayMs);
+    }
+  };
+
+  autoDismiss("error-alert");
+  autoDismiss("success-alert");
+});

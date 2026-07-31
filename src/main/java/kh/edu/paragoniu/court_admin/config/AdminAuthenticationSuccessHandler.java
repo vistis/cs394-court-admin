@@ -42,6 +42,22 @@ public class AdminAuthenticationSuccessHandler extends SimpleUrlAuthenticationSu
             return;
         }
 
-        super.onAuthenticationSuccess(request, response, authentication);
+        String targetUrl = resolveLandingPage(authentication);
+        getRedirectStrategy().sendRedirect(request, response, targetUrl);
+
+        //super.onAuthenticationSuccess(request, response, authentication);
+    }
+
+    private String resolveLandingPage(Authentication authentication) {
+        if (hasAuthority(authentication, "USER_VIEW")) return "/admin/users";
+        if (hasAuthority(authentication, "ROLE_VIEW")) return "/admin/roles";
+        if (hasAuthority(authentication, "PERMISSION_VIEW")) return "/admin/permissions";
+        if (hasAuthority(authentication, "STORAGE_VIEW")) return "/admin/storage";
+        return "/admin/profile"; // always accessible to any authenticated admin
+    }
+
+    private boolean hasAuthority(Authentication authentication, String authority) {
+        return authentication.getAuthorities().stream()
+            .anyMatch(a -> a.getAuthority().equals(authority));
     }
 }

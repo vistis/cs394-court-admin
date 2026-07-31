@@ -38,7 +38,7 @@ public class UserUpdateService {
     UserUpdateService(PasswordEncoder passwordEncoder) {
         this.passwordEncoder = passwordEncoder;
     }
-
+    @Transactional(readOnly = true)
     public UserDTO getUserById(UUID userId) {
         User user = userRepository
             .findByIdWithRoles(userId)

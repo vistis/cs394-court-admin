@@ -10,6 +10,8 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import jakarta.validation.Valid;
 import kh.edu.paragoniu.court_admin.service.RoleManagementService;
@@ -24,6 +26,10 @@ public class RoleManagementController  {
 
     @Autowired 
     private SystemRoleRepository systemRoleRepository;
+
+    private static final Logger log = LoggerFactory.getLogger(
+        UserManagementController.class
+    );
 
 
     @PreAuthorize("hasAuthority('ROLE_VIEW')")
@@ -60,6 +66,7 @@ public class RoleManagementController  {
     public String createRole(
             @Valid @ModelAttribute("role") CreateRoleRequestDTO request,
             BindingResult bindingResult,
+            RedirectAttributes redirectAttributes,
             Model model) {
 
         if (!bindingResult.hasErrors() && systemRoleRepository.existsByNameIgnoreCase(request.getName())) {
@@ -72,9 +79,22 @@ public class RoleManagementController  {
                 roleManagementService.getGroupedPermission(), request.getPermissionIds()));
             return "admin/create-role";
         }
-
-        Integer newRoleId = roleManagementService.createRole(request);
-        return "redirect:/admin/roles/" + newRoleId;
+        try {
+            Integer newRoleId = roleManagementService.createRole(request);
+            redirectAttributes.addFlashAttribute(
+                "success",
+                "Role create successfully."
+            );
+        } catch (Exception e) {
+            log.error("Failed to create user", e);
+            redirectAttributes.addFlashAttribute(
+                "error",
+                "could not create user: " + e.getMessage()
+            );
+            return "redirect:/admin/roles/create";
+        }
+        
+        return "redirect:/admin/roles";
     } 
 
     @PreAuthorize("hasAuthority('ROLE_UPDATE')")
