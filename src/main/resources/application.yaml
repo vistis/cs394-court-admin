@@ -56,5 +56,6 @@ spring:
       public-url: ${S3_PUBLIC_URL:}
 
   cache:
+    type: redis
     redis:
       time-to-live: 300000

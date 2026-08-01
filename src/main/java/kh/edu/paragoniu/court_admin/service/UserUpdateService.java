@@ -16,6 +16,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
+
 
 @Service
 public class UserUpdateService {
@@ -38,7 +42,9 @@ public class UserUpdateService {
     UserUpdateService(PasswordEncoder passwordEncoder) {
         this.passwordEncoder = passwordEncoder;
     }
+
     @Transactional(readOnly = true)
+    @Cacheable(value = "users:detail", key = "#userId")
     public UserDTO getUserById(UUID userId) {
         User user = userRepository
             .findByIdWithRoles(userId)
@@ -59,6 +65,10 @@ public class UserUpdateService {
     }
 
     @Transactional
+    @Caching(evict = {
+        @CacheEvict(value = "users:detail", key = "#userId"),
+        @CacheEvict(value = {"users:search", "users:state"}, allEntries = true)
+    })
     public void updateUser(
         UUID userId,
         UpdateUserRequestDTO request,

@@ -10,6 +10,8 @@ import kh.edu.paragoniu.court_shared.repository.SystemRoleRepository;
 import kh.edu.paragoniu.court_shared.repository.UserRepository;
 import kh.edu.paragoniu.court_shared.repository.UserRoleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,6 +35,10 @@ public class UserCreationSevice {
     @Autowired
     private StorageService storageService;
 
+    @Caching(evict = {
+        @CacheEvict(value = "users:search", allEntries = true),
+        @CacheEvict(value = "users:state", allEntries = true)
+    })
     @Transactional
     public void createUser(
         CreateUserRequestDTO request,

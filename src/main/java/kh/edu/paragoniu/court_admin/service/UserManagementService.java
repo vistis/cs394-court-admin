@@ -1,6 +1,7 @@
 package kh.edu.paragoniu.court_admin.service;
 
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
 import java.util.Map;
@@ -13,6 +14,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.cache.annotation.Cacheable;
 
 import kh.edu.paragoniu.court_shared.dto.user.UserDTO;
 import kh.edu.paragoniu.court_shared.dto.user.UserPageResultDTO;
@@ -30,6 +32,10 @@ public class UserManagementService {
     @Autowired
     private StorageService storageService;
 
+    @Cacheable(
+        value = "users:search", 
+        key = "{#query, #statusFilter, #page}"
+    )
     public UserPageResultDTO search(String query, Boolean statusFilter, int page ) {
         int safePage = Math.max(page, 1);
         Pageable pageable = PageRequest.of(safePage -1, PAGE_SIZE, Sort.by("lastName", "firstName"));
@@ -70,7 +76,7 @@ public class UserManagementService {
             idPage.hasNext()
         );
     }
-
+    @Cacheable(value = "users:state", key = "'adminStats'")
     public UserState getState() {
         long totalUser = userRepository.count();
         long activeUser = userRepository.countByIsActive(true);
@@ -78,6 +84,6 @@ public class UserManagementService {
         return new UserState(totalUser, activeUser, inactiveUser);
     }
 
-    public record UserState(long total, long active, long inactive) {}
+    public record UserState(long total, long active, long inactive) implements Serializable{}
 
 }

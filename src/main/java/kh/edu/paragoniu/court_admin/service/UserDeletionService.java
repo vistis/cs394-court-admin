@@ -6,6 +6,8 @@ import kh.edu.paragoniu.court_shared.repository.UserRepository;
 import kh.edu.paragoniu.court_shared.repository.UserRoleRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,6 +19,10 @@ public class UserDeletionService {
     @Autowired private UserRoleRepository userRoleRepository;
 
     @Transactional
+    @Caching(evict = {
+        @CacheEvict(value = "users:detail", key = "#userId"),
+        @CacheEvict(value = {"users:search", "users:state"}, allEntries = true)
+    })
     public void deleteUser(UUID userId) {
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
